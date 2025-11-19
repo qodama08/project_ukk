@@ -86,7 +86,7 @@ Route::middleware(['auth', 'web'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
     Route::get('/myprofile', function () {

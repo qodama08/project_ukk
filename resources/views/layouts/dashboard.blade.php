@@ -61,13 +61,7 @@
                                 <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
                                 <span class="pc-mtext">Dashboard</span>
                             </a>
-                        </li>
-                        @if (auth()->user()->role === 'admin')
-                            @include('admin.sidebar')
-                        @else
-                            @include('user.sidebar')
-                        @endif
-
+</li>
 
 
 

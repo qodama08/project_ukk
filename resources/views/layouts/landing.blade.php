@@ -104,8 +104,7 @@
                         <div class="col-md-4">
                             <img src="{{ asset('assets/images/my/images.png') }}"
                                 alt="Logo Sekolah Harapan Bangsa" class="img-fluid mb-3" style="max-width: 200px;">
-                            <p class="opacity-75">Sekolah Harapan Bangsa berkomitmen untuk mencetak generasi penerus
-                                yang cerdas, kreatif, dan berakhlak mulia melalui pendidikan berkualitas.</p>
+                            <p class="opacity-75"></p>
                         </div>
                         <div class="col-md-8">
                             <div class="row">
@@ -123,15 +122,15 @@
                                     <ul class="list-unstyled footer-link">
                                         <li class="d-flex">
                                             <i class="ti ti-map-pin me-2 mt-1"></i>
-                                            <span>Jl. Pendidikan No. 123, Jakarta Selatan, Indonesia</span>
+                                            <span></span>
                                         </li>
                                         <li class="d-flex">
                                             <i class="ti ti-mail me-2 mt-1"></i>
-                                            <span>info@harapanbangsa.sch.id</span>
+                                            <span></span>
                                         </li>
                                         <li class="d-flex">
                                             <i class="ti ti-phone me-2 mt-1"></i>
-                                            <span>(021) 123-4567</span>
+                                            <span></span>
                                         </li>
                                     </ul>
                                 </div>
@@ -151,8 +150,7 @@
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col my-1">
-                            <p class="text-white mb-0">© {{ date('Y') }} Sekolah Harapan Bangsa. Hak Cipta
-                                Dilindungi.</p>
+                            <p class="text-white mb-0">© {{ date('Y') }}</p>
                         </div>
                         <div class="col-auto my-1">
                             <ul class="list-inline footer-sos-link mb-0">

@@ -14,6 +14,7 @@ Schema::create('users', function (Blueprint $table) {
 $table->id();
 $table->string('name');
 $table->string('email')->nullable()->unique();
+$table->enum('role',['user', 'admin']);
 $table->string('password');
 $table->rememberToken();
 $table->timestamps();
