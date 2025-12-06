@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Jurusan;
 
 class JurusanController extends Controller
 {
@@ -11,7 +12,8 @@ class JurusanController extends Controller
      */
     public function index()
     {
-        //
+        $items = Jurusan::orderBy('nama_jurusan')->get();
+        return response()->json($items);
     }
 
     /**
@@ -19,7 +21,7 @@ class JurusanController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json(['message' => 'Use POST /jurusan to create']);
     }
 
     /**
@@ -27,7 +29,11 @@ class JurusanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'nama_jurusan' => 'required|string'
+        ]);
+        $j = Jurusan::create($data);
+        return response()->json(['message' => 'Created', 'data' => $j],201);
     }
 
     /**
@@ -35,7 +41,8 @@ class JurusanController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $j = Jurusan::with('siswa')->findOrFail($id);
+        return response()->json($j);
     }
 
     /**
@@ -43,7 +50,8 @@ class JurusanController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $j = Jurusan::findOrFail($id);
+        return response()->json($j);
     }
 
     /**
@@ -51,7 +59,12 @@ class JurusanController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $j = Jurusan::findOrFail($id);
+        $data = $request->validate([
+            'nama_jurusan' => 'nullable|string'
+        ]);
+        $j->update($data);
+        return response()->json(['message' => 'Updated', 'data' => $j]);
     }
 
     /**
@@ -59,6 +72,8 @@ class JurusanController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $j = Jurusan::findOrFail($id);
+        $j->delete();
+        return response()->json(['message' => 'Deleted']);
     }
 }

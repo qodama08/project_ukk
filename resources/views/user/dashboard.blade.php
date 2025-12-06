@@ -1,85 +1,134 @@
-<div class="row justify-content-center">
-    <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center">
-                <h2 class="mb-3 text-primary">
-                    Selamat Datang, <span class="fw-bold">{{ Auth::user()->name }}</span>!
-                </h2>
 
-                @if (!$user->is_verified)
-                    <div class="alert alert-warning d-flex align-items-center justify-content-between shadow-sm"
-                        role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-                            <div>
-                                <strong>Email Anda belum terverifikasi.</strong> Silakan verifikasi terlebih dahulu
-                                untuk
-                                mengakses semua fitur.
-                            </div>
-                        </div>
+@php
+try {
+    $totalSiswa = class_exists('\App\Models\User') ? \App\Models\User::whereNotNull('nisn')->count() : 0;
+    $totalGuruBK = 0;
+    if (class_exists('\App\Models\User') && method_exists(\App\Models\User::class, 'roles')) {
+        $totalGuruBK = \App\Models\User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->count();
+    }
+    $totalJadwal = class_exists('\App\Models\JadwalKonseling') ? \App\Models\JadwalKonseling::count() : 0;
+    $totalPrestasi = class_exists('\App\Models\Prestasi') ? \App\Models\Prestasi::count() : 0;
+} catch (\Throwable $e) {
+    $totalSiswa = $totalGuruBK = $totalJadwal = $totalPelanggaran = 0;
+}
+@endphp
 
-                        <a href="{{ route('verify.form') }}" id="verify-button"
-                            class="btn btn-warning btn-sm fw-bold">Verifikasi
-                            Sekarang</a>
-                    </div>
-                @endif
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                <p class="lead mb-4">
-                    Ini adalah <span class="fw-bold text-success">Dashboard</span> <span class="text-info"></span>.
-                </p>
-
-                <div class="row mt-4">
-                    <div class="col-md-4 mb-3">
-                        <div class="card border-info h-100">
-                            <div class="card-body">
-                                <i class="bi bi-person-lines-fill fs-2 text-info"></i>
-                                <h5 class="card-title mt-2"></h5>
-                                <p class="card-text">Cek dan lengkapi data kamu di sini.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card border-success h-100">
-                            <div class="card-body">
-                                <i class="bi bi-bar-chart-line-fill fs-2 text-success"></i>
-                                <h5 class="card-title mt-2">Progress</h5>
-                                <p class="card-text">Pantau status dan tahapan.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card border-warning h-100">
-                            <div class="card-body">
-                                <i class="bi bi-megaphone-fill fs-2 text-warning"></i>
-                                <h5 class="card-title mt-2">Pengumuman</h5>
-                                <p class="card-text">Lihat pengumuman terbaru terkait BK</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <a href="/myprofile" class="btn btn-primary mt-4 px-4">
-                    Lihat Profil Saya
-                </a>
+<div class="row">
+    <div class="col-md-3">
+        <div class="card border-left-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title mb-0">Total Siswa</h6>
+                <div class="h3 mb-0 font-weight-bold text-primary">{{ $totalSiswa }}</div>
             </div>
+            <a href="{{ url('/siswa') }}" class="card-footer bg-white">
+                <span class="small">Lihat Data →</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-left-success shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title mb-0">Guru BK</h6>
+                <div class="h3 mb-0 font-weight-bold text-success">{{ $totalGuruBK }}</div>
+            </div>
+            <a href="{{ url('/users') }}" class="card-footer bg-white">
+                <span class="small">Kelola →</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-left-info shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title mb-0">Jadwal Konseling</h6>
+                <div class="h3 mb-0 font-weight-bold text-info">{{ $totalJadwal }}</div>
+            </div>
+            <a href="{{ url('/jadwal_konseling') }}" class="card-footer bg-white">
+                <span class="small">Lihat →</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+            <div class="card border-left-warning shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title mb-0">Prestasi</h6>
+                <div class="h3 mb-0 font-weight-bold text-warning">{{ $totalPrestasi }}</div>
+            </div>
+            <a href="{{ url('/prestasi') }}" class="card-footer bg-white">
+                <span class="small">Lihat →</span>
+            </a>
         </div>
     </div>
 </div>
-<script>
-    // Script to handle the verification button click state
-    const verifyButton = document.getElementById('verify-button');
 
-    if (verifyButton) {
-        verifyButton.addEventListener('click', function() {
-            // Disable the button and show processing text
-            this.classList.add('disabled');
-            this.innerHTML = `
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Processing...
-            `;
-        });
+<hr class="my-4">
+
+<div class="row">
+    <h6 class="mb-3"><strong>Kelola Fitur BK</strong></h6>
+
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/pelanggaran') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-ban fa-2x text-danger"></i></div>
+                    <h6 class="card-title">Pelanggaran</h6>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/prestasi') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-trophy fa-2x text-warning"></i></div>
+                    <h6 class="card-title">Prestasi</h6>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/jadwal_konseling') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-calendar fa-2x text-info"></i></div>
+                    <h6 class="card-title">Jadwal Konseling</h6>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/catatan_konseling') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-notes-medical fa-2x text-success"></i></div>
+                    <h6 class="card-title">Catatan Konseling</h6>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 4px solid #007bff !important;
     }
-</script>
+    .border-left-success {
+        border-left: 4px solid #28a745 !important;
+    }
+    .border-left-info {
+        border-left: 4px solid #17a2b8 !important;
+    }
+    .border-left-warning {
+        border-left: 4px solid #ffc107 !important;
+    }
+    .card.hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        transition: all 0.3s ease;
+    }
+</style>

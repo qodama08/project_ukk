@@ -12,7 +12,7 @@ use HasFactory;
 
 
 protected $table = 'kelas';
-protected $fillable = ['nama_kelas','tingkat','wali_kelas_id','tahun_ajaran'];
+protected $fillable = ['nama_kelas','tingkat','wali_kelas_id','tahun_ajaran','jurusan_id'];
 
 
 public function wali()
@@ -20,6 +20,10 @@ public function wali()
 return $this->belongsTo(User::class, 'wali_kelas_id');
 }
 
+public function jurusan()
+{
+return $this->belongsTo(Jurusan::class, 'jurusan_id');
+}
 
 public function siswa()
 {

@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
+      MYSQL_DATABASE: docker_aplikasi_bk
       MYSQL_USER: laravel
       MYSQL_PASSWORD: laravel
     ports:

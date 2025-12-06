@@ -10,7 +10,7 @@ public function up(): void
 {
 Schema::create('jadwal_konseling', function (Blueprint $table) {
 $table->id();
-$table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
+$table->foreignId('siswa_id')->constrained('users')->cascadeOnDelete();
 $table->foreignId('guru_bk_id')->constrained('users')->cascadeOnDelete();
 $table->date('tanggal');
 $table->time('jam');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Role;
 
 class RoleController extends Controller
 {
@@ -11,7 +12,8 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        $roles = Role::all();
+        return response()->json($roles);
     }
 
     /**
@@ -19,7 +21,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json(['message' => 'Use POST /roles to create']);
     }
 
     /**
@@ -27,7 +29,13 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'nama_role' => 'required|string',
+            'deskripsi' => 'nullable|string',
+            'is_multi' => 'nullable|boolean'
+        ]);
+        $r = Role::create($data);
+        return response()->json(['message' => 'Created', 'data' => $r],201);
     }
 
     /**
@@ -35,7 +43,8 @@ class RoleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $r = Role::with('users')->findOrFail($id);
+        return response()->json($r);
     }
 
     /**
@@ -43,7 +52,8 @@ class RoleController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $r = Role::findOrFail($id);
+        return response()->json($r);
     }
 
     /**
@@ -51,7 +61,14 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $r = Role::findOrFail($id);
+        $data = $request->validate([
+            'nama_role' => 'nullable|string',
+            'deskripsi' => 'nullable|string',
+            'is_multi' => 'nullable|boolean'
+        ]);
+        $r->update($data);
+        return response()->json(['message' => 'Updated', 'data' => $r]);
     }
 
     /**
@@ -59,6 +76,8 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $r = Role::findOrFail($id);
+        $r->delete();
+        return response()->json(['message' => 'Deleted']);
     }
 }

@@ -11,7 +11,7 @@ public function up(): void
 Schema::create('catatan_konseling', function (Blueprint $table) {
 $table->id();
 $table->foreignId('jadwal_id')->constrained('jadwal_konseling')->cascadeOnDelete();
-$table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
+$table->foreignId('siswa_id')->constrained('users')->cascadeOnDelete();
 $table->foreignId('guru_bk_id')->constrained('users')->cascadeOnDelete();
 $table->text('hasil')->nullable();
 $table->text('tindak_lanjut')->nullable();

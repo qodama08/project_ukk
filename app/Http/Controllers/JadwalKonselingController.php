@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\JadwalKonseling;
+use App\Models\User;
+use App\Models\CatatanKonseling;
+use Illuminate\Support\Facades\Auth;
 
 class JadwalKonselingController extends Controller
 {
@@ -11,7 +15,17 @@ class JadwalKonselingController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $query = JadwalKonseling::with(['siswa','guru','catatan'])->orderBy('tanggal','desc');
+
+        // Jika guru BK, hanya tampilkan jadwal yang di-assign ke mereka
+        if ($user && $user->roles()->where('nama_role','guru_bk')->exists()) {
+            $query->where('guru_bk_id', $user->id);
+        }
+
+        $jadwals = $query->paginate(20);
+        if (request()->wantsJson()) return response()->json($jadwals);
+        return view('jadwal_konseling.index', ['jadwals' => $jadwals]);
     }
 
     /**
@@ -19,7 +33,11 @@ class JadwalKonselingController extends Controller
      */
     public function create()
     {
-        //
+        if (request()->wantsJson()) {
+            return response()->json(['message' => 'Use POST /jadwal_konseling to create']);
+        }
+        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->orderBy('name')->get();
+        return view('jadwal_konseling.form', ['gurus' => $gurus]);
     }
 
     /**
@@ -27,7 +45,67 @@ class JadwalKonselingController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'siswa_id' => 'nullable|exists:users,id',
+            'nama_siswa' => 'required_without:siswa_id|string|max:255',
+            'kelas' => 'nullable|string|max:50',
+            'absen' => 'nullable|string|max:10',
+            'tanggal' => 'required|date',
+            'jam' => 'required',
+            'tempat' => 'nullable|string',
+            'status' => 'nullable|in:pending,terjadwal,selesai,batal',
+            'guru_bk_id' => 'nullable|exists:users,id',
+        ]);
+
+        // default siswa_id to authenticated user when available
+        $data['siswa_id'] = $data['siswa_id'] ?? (Auth::check() ? Auth::id() : null);
+        // default guru_bk_id to auth user if not provided
+        $data['guru_bk_id'] = $data['guru_bk_id'] ?? (Auth::check() ? Auth::id() : null);
+        // Default status when a student submits is 'pending' unless explicitly set
+        $data['status'] = $data['status'] ?? 'pending';
+
+        try {
+            $jadwal = JadwalKonseling::create($data);
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan jadwal: ' . $e->getMessage()]);
+        }
+
+        // create a pending catatan_konseling entry summarizing the submission
+        try {
+            $siswa = $jadwal->siswa;
+            $guru = $jadwal->guru;
+            $hasil = "Pengajuan jadwal oleh " . ($jadwal->nama_siswa ?? ($siswa->name ?? 'N/A')) . " pada " . ($jadwal->tanggal ?? '') . " " . ($jadwal->jam ?? '') . ". Guru: " . ($guru->name ?? '-') . ". Tempat: " . ($jadwal->tempat ?? '-') . ". Kelas: " . ($jadwal->kelas ?? '-') . ", Absen: " . ($jadwal->absen ?? '-');
+
+            CatatanKonseling::create([
+                'jadwal_id' => $jadwal->id,
+                'siswa_id' => $jadwal->siswa_id,
+                'guru_bk_id' => $jadwal->guru_bk_id,
+                'hasil' => $hasil,
+                'status' => 'pending',
+                'created_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            // don't fail the whole request if note creation fails; log if needed
+        }
+
+        // Create notifications for all admins so they can review the pending jadwal
+        try {
+            $admins = User::whereHas('roles', function($q){ $q->where('nama_role','admin'); })->get();
+            foreach ($admins as $admin) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $admin->id,
+                    'title' => 'Pengajuan Jadwal Konseling Baru',
+                    'message' => 'Terdapat pengajuan jadwal dari ' . ($jadwal->nama_siswa ?? 'siswa') . ' pada ' . ($jadwal->tanggal ?? '') . ' ' . ($jadwal->jam ?? '') . '. Klik untuk melihat.',
+                    'data' => json_encode(['jadwal_id' => $jadwal->id]),
+                    'is_read' => false,
+                ]);
+            }
+        } catch (\Exception $e) {
+            // ignore notification failures
+        }
+
+        if (request()->wantsJson()) return response()->json(['message' => 'Jadwal created', 'data' => $jadwal],201);
+        return redirect()->route('jadwal_konseling.index')->with('success','Jadwal dibuat');
     }
 
     /**
@@ -35,7 +113,11 @@ class JadwalKonselingController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $jadwal = JadwalKonseling::with(['siswa','guru'])->findOrFail($id);
+        if (request()->wantsJson()) return response()->json($jadwal);
+        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->orderBy('name')->get();
+        // Show form view that displays details and allows status update (form will be read-only except for admin status field)
+        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'gurus' => $gurus]);
     }
 
     /**
@@ -43,7 +125,15 @@ class JadwalKonselingController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $jadwal = JadwalKonseling::with(['siswa','guru'])->findOrFail($id);
+        if (request()->wantsJson()) return response()->json($jadwal);
+        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->orderBy('name')->get();
+        // only the owner (siswa who created the jadwal) may edit
+        if (!Auth::check() || Auth::id() != $jadwal->siswa_id) {
+            abort(403, 'Unauthorized - only owner can edit jadwal');
+        }
+
+        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'gurus' => $gurus]);
     }
 
     /**
@@ -51,7 +141,25 @@ class JadwalKonselingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $jadwal = JadwalKonseling::findOrFail($id);
+        // only owner may update
+        if (!Auth::check() || Auth::id() != $jadwal->siswa_id) {
+            abort(403, 'Unauthorized - only owner can update jadwal');
+        }
+        $data = $request->validate([
+            'nama_siswa' => 'nullable|string',
+            'kelas' => 'nullable|string',
+            'absen' => 'nullable|string',
+            'tanggal' => 'nullable|date',
+            'jam' => 'nullable',
+            'tempat' => 'nullable|string',
+            'status' => 'nullable|in:pending,terjadwal,selesai,batal',
+            'guru_bk_id' => 'nullable|exists:users,id',
+        ]);
+
+        $jadwal->update($data);
+        if (request()->wantsJson()) return response()->json(['message' => 'Updated', 'data' => $jadwal]);
+        return redirect()->route('jadwal_konseling.index')->with('success','Jadwal diperbarui');
     }
 
     /**
@@ -59,6 +167,41 @@ class JadwalKonselingController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $jadwal = JadwalKonseling::findOrFail($id);
+        // only owner may delete
+        if (!Auth::check() || Auth::id() != $jadwal->siswa_id) {
+            abort(403, 'Unauthorized - only owner can delete jadwal');
+        }
+
+        $jadwal->delete();
+        if (request()->wantsJson()) return response()->json(['message' => 'Deleted']);
+        return redirect()->route('jadwal_konseling.index')->with('success','Jadwal dihapus');
+    }
+
+    /**
+     * Set status (admin action)
+     */
+    public function setStatus(Request $request, $id)
+    {
+        $jadwal = JadwalKonseling::findOrFail($id);
+        $data = $request->validate([
+            'status' => 'required|in:pending,terjadwal,selesai,batal'
+        ]);
+
+        $jadwal->status = $data['status'];
+        $jadwal->save();
+
+        // Mark related notifications as read (any notifikasi that references this jadwal)
+        try {
+            $notifs = \App\Models\Notifikasi::whereRaw("JSON_EXTRACT(data, '$.jadwal_id') = ?", [$jadwal->id])->get();
+            foreach ($notifs as $n) {
+                $n->is_read = true;
+                $n->save();
+            }
+        } catch (\Exception $e) {
+            // ignore notification update failures
+        }
+
+        return redirect()->route('jadwal_konseling.index')->with('success', 'Status diperbarui');
     }
 }

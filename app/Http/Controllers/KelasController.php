@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Kelas;
+use App\Models\User;
 
 class KelasController extends Controller
 {
@@ -11,7 +13,8 @@ class KelasController extends Controller
      */
     public function index()
     {
-        //
+        $kelas = Kelas::with('wali')->orderBy('nama_kelas')->get();
+        return response()->json($kelas);
     }
 
     /**
@@ -19,7 +22,7 @@ class KelasController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json(['message' => 'Use POST /kelas to create']);
     }
 
     /**
@@ -27,7 +30,15 @@ class KelasController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'nama_kelas' => 'required|string',
+            'tingkat' => 'required|integer',
+            'wali_kelas_id' => 'nullable|exists:users,id',
+            'tahun_ajaran' => 'nullable|string'
+        ]);
+
+        $k = Kelas::create($data);
+        return response()->json(['message' => 'Created', 'data' => $k],201);
     }
 
     /**
@@ -35,7 +46,8 @@ class KelasController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $k = Kelas::with('wali','siswa')->findOrFail($id);
+        return response()->json($k);
     }
 
     /**
@@ -43,7 +55,8 @@ class KelasController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $k = Kelas::findOrFail($id);
+        return response()->json($k);
     }
 
     /**
@@ -51,7 +64,15 @@ class KelasController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $k = Kelas::findOrFail($id);
+        $data = $request->validate([
+            'nama_kelas' => 'nullable|string',
+            'tingkat' => 'nullable|integer',
+            'wali_kelas_id' => 'nullable|exists:users,id',
+            'tahun_ajaran' => 'nullable|string'
+        ]);
+        $k->update($data);
+        return response()->json(['message' => 'Updated', 'data' => $k]);
     }
 
     /**
@@ -59,6 +80,8 @@ class KelasController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $k = Kelas::findOrFail($id);
+        $k->delete();
+        return response()->json(['message' => 'Deleted']);
     }
 }

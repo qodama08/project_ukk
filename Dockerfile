@@ -31,6 +31,9 @@ RUN composer install --no-interaction --prefer-dist && \
     php artisan migrate --seed || true && \
     chown -R www-data:www-data storage bootstrap/cache
 
+# Ensure php-fpm listens on all interfaces (so nginx can reach it from another container)
+RUN sed -i "s/listen = 127.0.0.1:9000/listen = 9000/" /usr/local/etc/php-fpm.d/www.conf || true
+
 # Expose port 9000 and start PHP-FPM
 EXPOSE 9000
 CMD ["php-fpm"]

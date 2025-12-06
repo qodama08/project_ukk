@@ -193,19 +193,19 @@
                             <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
                                 href="#" role="button" aria-haspopup="false" data-bs-auto-close="outside"
                                 aria-expanded="false">
-                                <img src="{{ $avatar }}" alt="user-image" class="user-avtar">
-                                <span>{{ $name }}</span>
+                                <img src="{{ asset('assets/images/user/avatar-4.jpg') }}" alt="user-image" class="user-avtar">
+                                    <span>{{ auth()->user() ? auth()->user()->name : 'Guest' }}</span>
                             </a>
                             <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
                                 <div class="dropdown-header">
                                     <div class="d-flex mb-1 align-items-center">
                                         <div class="flex-shrink-0">
-                                            <img src="{{ $avatar }}" alt="user-image"
+                                            <img src="{{ asset('assets/images/user/avatar-4.jpg') }}" alt="user-image"
                                                 class="user-avtar wid-35">
                                         </div>
                                         <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-1">{{ $name }}</h6>
-                                            <span>{{ $role }}</span>
+                                            <h6 class="mb-1">{{ auth()->user() ? auth()->user()->name : 'Guest' }}</h6>
+                                            <span>{{ auth()->user() ? (auth()->user()->role ?? 'User') : 'Guest' }}</span>
                                         </div>
 
                                     </div>

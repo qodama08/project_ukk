@@ -2,45 +2,103 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BiodataController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\JurusanController;
 use App\Http\Controllers\PelanggaranController;
-use App\Http\Controllers\LogPelanggaranController;
 use App\Http\Controllers\JadwalKonselingController;
 use App\Http\Controllers\CatatanKonselingController;
-use App\Http\Controllers\CatatanPerkembanganController;
 use App\Http\Controllers\PrestasiController;
-use App\Http\Controllers\IdentitasSekolahController;
-use App\Http\Controllers\AgendaController;
-use App\Http\Controllers\PengaduanController;
-use App\Http\Controllers\SuratPanggilanController;
-use App\Http\Controllers\ArsipDokumenController;
-use App\Http\Controllers\NotifikasiController;
-use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 
+
+use App\Http\Controllers\GuruBKController;
 
 Route::resource('users', UserController::class);
 Route::resource('roles', RoleController::class);
 Route::resource('kelas', KelasController::class);
 Route::resource('jurusan', JurusanController::class);
-Route::resource('siswa', SiswaController::class);
-Route::resource('pelanggaran', PelanggaranController::class);
-Route::resource('log_pelanggaran', LogPelanggaranController::class);
-Route::resource('jadwal_konseling', JadwalKonselingController::class);
-Route::resource('catatan_konseling', CatatanKonselingController::class);
-Route::resource('catatan_perkembangan', CatatanPerkembanganController::class);
-Route::resource('prestasi', PrestasiController::class);
-Route::resource('identitas_sekolah', IdentitasSekolahController::class);
-Route::resource('agenda', AgendaController::class);
-Route::resource('pengaduan', PengaduanController::class);
-Route::resource('surat_panggilan', SuratPanggilanController::class);
-Route::resource('arsip_dokumen', ArsipDokumenController::class);
-Route::resource('notifikasi', NotifikasiController::class);
-Route::resource('laporan', LaporanController::class);
+
+// Siswa CRUD - admin only
+Route::middleware(['auth', 'cekRole:admin'])->group(function () {
+    Route::post('siswa', [SiswaController::class, 'store'])->name('siswa.store');
+    Route::get('siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
+    Route::get('siswa/{siswa}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
+    Route::put('siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
+    Route::delete('siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
+});
+
+// Siswa index/show - everyone can view
+Route::middleware('auth')->group(function () {
+    Route::get('siswa', [SiswaController::class, 'index'])->name('siswa.index');
+    Route::get('siswa/{siswa}', [SiswaController::class, 'show'])->name('siswa.show');
+});
+
+// Guru BK - admin only
+Route::middleware(['auth', 'cekRole:admin'])->resource('guru_bk', GuruBKController::class);
+
+// Pelanggaran - admin only CUD, everyone can view
+Route::middleware(['auth', 'cekRole:admin'])->group(function () {
+    Route::post('pelanggaran', [PelanggaranController::class, 'store'])->name('pelanggaran.store');
+    Route::get('pelanggaran/create', [PelanggaranController::class, 'create'])->name('pelanggaran.create');
+    Route::get('pelanggaran/{pelanggaran}/edit', [PelanggaranController::class, 'edit'])->name('pelanggaran.edit');
+    Route::put('pelanggaran/{pelanggaran}', [PelanggaranController::class, 'update'])->name('pelanggaran.update');
+    Route::delete('pelanggaran/{pelanggaran}', [PelanggaranController::class, 'destroy'])->name('pelanggaran.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('pelanggaran', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
+    Route::get('pelanggaran/{pelanggaran}', [PelanggaranController::class, 'show'])->name('pelanggaran.show');
+});
+
+// Prestasi - admin only CUD, everyone can view
+Route::middleware(['auth', 'cekRole:admin'])->group(function () {
+    Route::post('prestasi', [PrestasiController::class, 'store'])->name('prestasi.store');
+    Route::get('prestasi/create', [PrestasiController::class, 'create'])->name('prestasi.create');
+    Route::get('prestasi/{prestasi}/edit', [PrestasiController::class, 'edit'])->name('prestasi.edit');
+    Route::put('prestasi/{prestasi}', [PrestasiController::class, 'update'])->name('prestasi.update');
+    Route::delete('prestasi/{prestasi}', [PrestasiController::class, 'destroy'])->name('prestasi.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('prestasi', [PrestasiController::class, 'index'])->name('prestasi.index');
+    Route::get('prestasi/{prestasi}', [PrestasiController::class, 'show'])->name('prestasi.show');
+});
+
+// Catatan Konseling - admin/guru_bk only CUD, everyone can view
+Route::middleware(['auth', 'cekRole:admin'])->group(function () {
+    Route::post('catatan_konseling', [CatatanKonselingController::class, 'store'])->name('catatan_konseling.store');
+    Route::get('catatan_konseling/create', [CatatanKonselingController::class, 'create'])->name('catatan_konseling.create');
+    Route::get('catatan_konseling/{catatan_konseling}/edit', [CatatanKonselingController::class, 'edit'])->name('catatan_konseling.edit');
+    Route::put('catatan_konseling/{catatan_konseling}', [CatatanKonselingController::class, 'update'])->name('catatan_konseling.update');
+    Route::delete('catatan_konseling/{catatan_konseling}', [CatatanKonselingController::class, 'destroy'])->name('catatan_konseling.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('catatan_konseling', [CatatanKonselingController::class, 'index'])->name('catatan_konseling.index');
+    Route::get('catatan_konseling/{catatan_konseling}', [CatatanKonselingController::class, 'show'])->name('catatan_konseling.show');
+    Route::post('catatan_konseling/{id}/approve', [CatatanKonselingController::class, 'approve'])->name('catatan_konseling.approve');
+});
+
+// Jadwal Konseling - student ONLY create, admin ONLY set_status
+Route::middleware('auth')->group(function () {
+    Route::get('jadwal_konseling', [JadwalKonselingController::class, 'index'])->name('jadwal_konseling.index');
+});
+
+// Student only - dapat create jadwal
+Route::middleware('auth')->group(function () {
+    Route::post('jadwal_konseling', [JadwalKonselingController::class, 'store'])->name('jadwal_konseling.store');
+    Route::get('jadwal_konseling/create', [JadwalKonselingController::class, 'create'])->name('jadwal_konseling.create');
+    Route::get('jadwal_konseling/{jadwal_konseling}/edit', [JadwalKonselingController::class, 'edit'])->name('jadwal_konseling.edit');
+    Route::put('jadwal_konseling/{jadwal_konseling}', [JadwalKonselingController::class, 'update'])->name('jadwal_konseling.update');
+    Route::delete('jadwal_konseling/{jadwal_konseling}', [JadwalKonselingController::class, 'destroy'])->name('jadwal_konseling.destroy');
+    // show route moved here so /jadwal_konseling/create is not captured by the {jadwal_konseling} route
+    Route::get('jadwal_konseling/{jadwal_konseling}', [JadwalKonselingController::class, 'show'])->name('jadwal_konseling.show');
+});
+
+// Admin only - dapat ubah status
+Route::post('jadwal_konseling/{id}/set_status', [JadwalKonselingController::class, 'setStatus'])->middleware(['auth','cekRole:admin'])->name('jadwal_konseling.set_status');
 
 Route::get('/', function () {
     return view('welcome');
@@ -95,33 +153,17 @@ Route::middleware(['auth', 'web'])->group(function () {
 
     // Admin routes
     Route::middleware(['cekRole:admin'])->group(function () {
-
-        Route::get('/verifikasi', function () {
-            return view('admin.verifikasi');
-        })->name('admin.verifikasi');
-        Route::get('/seleksi', function () {
-            return view('admin.seleksi');
-        })->name('admin.seleksi');
-        Route::get('/pengumuman', function () {
-            return view('admin.pengumuman');
-        })->name('admin.pengumuman');
-        Route::get('/laporan', function () {
-            return view('admin.laporan');
-        })->name('admin.laporan');
+        Route::get('notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index'])->name('notifikasi.index');
+        Route::post('notifikasi/{id}/read', [\App\Http\Controllers\NotifikasiController::class, 'markRead'])->name('notifikasi.read');
     });
 
     // User routes
     Route::middleware(['cekRole:user'])->group(function () {
 
-        Route::get('/biodata',  [BiodataController::class, 'index'])->name('user.biodata');
-        Route::get('/dokumen', function () {
-            return view('user.dokumen');
-        })->name('user.dokumen');
-        Route::get('/status', function () {
-            return view('user.status');
-        })->name('user.status');
-        Route::get('/daftar-ulang', function () {
-            return view('user.daftar_ulang');
-        })->name('user.daftar_ulang');
+    });
+
+    // Guru BK routes
+    Route::middleware(['cekGuruBK'])->group(function () {
+        // Guru BK can only view and manage their own jadwal & catatan konseling
     });
 });

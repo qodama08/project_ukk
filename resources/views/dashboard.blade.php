@@ -22,8 +22,16 @@
         </div>
         <!-- [ breadcrumb ] end -->
         <!-- [ Main Content ] start -->
-        @if (auth()->user()->role == 'admin')
+        @php
+            $user = auth()->user();
+            $isAdmin = $user && $user->role == 'admin';
+            $isGuruBK = $user && $user->roles && $user->roles()->where('nama_role', 'guru_bk')->exists();
+        @endphp
+
+        @if ($isAdmin)
             @include('admin.dashboard')
+        @elseif ($isGuruBK)
+            @include('guru.dashboard')
         @else
             @include('user.dashboard')
         @endif

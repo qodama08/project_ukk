@@ -1,17 +1,22 @@
 <?php
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class Notifikasi extends Model
 {
-use HasFactory;
-protected $table = 'notifikasi';
-protected $fillable = ['user_id','judul','pesan','tipe','status','created_at','sent_at','read_at'];
+    use HasFactory;
+    protected $table = 'notifikasis';
+    protected $fillable = ['user_id','title','message','data','is_read'];
 
+    protected $casts = [
+        'data' => 'array',
+        'is_read' => 'boolean',
+    ];
 
-public function user() { return $this->belongsTo(User::class,'user_id'); }
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
 }

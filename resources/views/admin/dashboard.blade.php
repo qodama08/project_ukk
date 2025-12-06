@@ -1,127 +1,134 @@
-@extends('layouts.dashboard')
 
-@section('title', 'Admin Dashboard')
-
-@section('content')
+@php
+try {
+    $totalSiswa = class_exists('\App\Models\User') ? \App\Models\User::whereNotNull('nisn')->count() : 0;
+    $totalGuruBK = 0;
+    if (class_exists('\App\Models\User') && method_exists(\App\Models\User::class, 'roles')) {
+        $totalGuruBK = \App\Models\User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->count();
+    }
+    $totalJadwal = class_exists('\App\Models\JadwalKonseling') ? \App\Models\JadwalKonseling::count() : 0;
+    $totalPrestasi = class_exists('\App\Models\Prestasi') ? \App\Models\Prestasi::count() : 0;
+} catch (\Throwable $e) {
+    $totalSiswa = $totalGuruBK = $totalJadwal = $totalPelanggaran = 0;
+}
+@endphp
 
 <div class="row">
-
-    <!-- CARD: Total Siswa -->
-    <div class="col-md-4">
-        <div class="card shadow-sm">
+    <div class="col-md-3">
+        <div class="card border-left-primary shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Total Siswa</h5>
-                <p class="card-text fs-3 fw-bold">120</p>
-                <a href="#" class="btn btn-primary btn-sm">Lihat Data</a>
+                <h6 class="card-title mb-0">Total Siswa</h6>
+                <div class="h3 mb-0 font-weight-bold text-primary">{{ $totalSiswa }}</div>
             </div>
+            <a href="{{ url('/siswa') }}" class="card-footer bg-white">
+                <span class="small">Lihat Data →</span>
+            </a>
         </div>
     </div>
 
-    <!-- CARD: Total Guru BK -->
-    <div class="col-md-4">
-        <div class="card shadow-sm">
+    <div class="col-md-3">
+        <div class="card border-left-success shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Guru BK</h5>
-                <p class="card-text fs-3 fw-bold">5</p>
-                <a href="#" class="btn btn-primary btn-sm">Kelola Guru BK</a>
+                <h6 class="card-title mb-0">Guru BK</h6>
+                <div class="h3 mb-0 font-weight-bold text-success">{{ $totalGuruBK }}</div>
             </div>
+            <a href="{{ url('/guru_bk') }}" class="card-footer bg-white">
+                <span class="small">Kelola →</span>
+            </a>
         </div>
     </div>
 
-    <!-- CARD: Jadwal Konseling -->
-    <div class="col-md-4">
-        <div class="card shadow-sm">
+    <div class="col-md-3">
+        <div class="card border-left-info shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Jadwal Konseling</h5>
-                <p class="card-text fs-3 fw-bold">8 Jadwal</p>
-                <a href="#" class="btn btn-primary btn-sm">Lihat Jadwal</a>
+                <h6 class="card-title mb-0">Jadwal Konseling</h6>
+                <div class="h3 mb-0 font-weight-bold text-info">{{ $totalJadwal }}</div>
             </div>
+            <a href="{{ url('/jadwal_konseling') }}" class="card-footer bg-white">
+                <span class="small">Lihat →</span>
+            </a>
         </div>
     </div>
 
+    <div class="col-md-3">
+            <div class="card border-left-warning shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title mb-0">Prestasi</h6>
+                <div class="h3 mb-0 font-weight-bold text-warning">{{ $totalPrestasi }}</div>
+            </div>
+            <a href="{{ url('/prestasi') }}" class="card-footer bg-white">
+                <span class="small">Lihat →</span>
+            </a>
+        </div>
+    </div>
 </div>
 
-<hr>
+<hr class="my-4">
 
-<!-- MENU FITUR ADMIN -->
-<div class="row mt-4">
+<div class="row">
+    <h6 class="mb-3"><strong>Kelola Fitur BK</strong></h6>
 
-    <h4 class="mb-3">Fitur Admin</h4>
-
-    <!-- Data Siswa -->
-    <div class="col-md-3">
-        <a href="#" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-users fs-1 mb-2"></i>
-                <h6>Kelola Data Siswa</h6>
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/pelanggaran') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-ban fa-2x text-danger"></i></div>
+                    <h6 class="card-title">Pelanggaran</h6>
+                </div>
             </div>
         </a>
     </div>
 
-    <!-- Guru BK -->
-    <div class="col-md-3">
-        <a href="#" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-user-heart fs-1 mb-2"></i>
-                <h6>Kelola Guru BK</h6>
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/prestasi') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-trophy fa-2x text-warning"></i></div>
+                    <h6 class="card-title">Prestasi</h6>
+                </div>
             </div>
         </a>
     </div>
 
-    <!-- Konseling Individu -->
-    <div class="col-md-3">
-        <a href="#" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-user-check fs-1 mb-2"></i>
-                <h6>Konseling Individu</h6>
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/jadwal_konseling') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-calendar fa-2x text-info"></i></div>
+                    <h6 class="card-title">Jadwal Konseling</h6>
+                </div>
             </div>
         </a>
     </div>
 
-    <!-- Konseling Kelompok -->
-    <div class="col-md-3">
-        <a href="#" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-users-group fs-1 mb-2"></i>
-                <h6>Konseling Kelompok</h6>
+    <div class="col-md-3 mb-3">
+        <a href="{{ url('/catatan_konseling') }}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm hover">
+                <div class="card-body text-center">
+                    <div class="mb-2"><i class="fas fa-notes-medical fa-2x text-success"></i></div>
+                    <h6 class="card-title">Catatan Konseling</h6>
+                </div>
             </div>
         </a>
     </div>
-
 </div>
 
-<div class="row mt-4">
-
-    <!-- Laporan -->
-    <div class="col-md-3">
-        <a href="/admin/laporan" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-report fs-1 mb-2"></i>
-                <h6>Laporan Konseling</h6>
-            </div>
-        </a>
-    </div>
-
-    <!-- Pengumuman -->
-    <div class="col-md-3">
-        <a href="/admin/pengumuman" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-megaphone fs-1 mb-2"></i>
-                <h6>Pengumuman</h6>
-            </div>
-        </a>
-    </div>
-
-    <!-- Manajemen User -->
-    <div class="col-md-3">
-        <a href="#" class="text-decoration-none">
-            <div class="card p-3 text-center shadow-sm">
-                <i class="ti ti-lock fs-1 mb-2"></i>
-                <h6>Manajemen User & Role</h6>
-            </div>
-        </a>
-    </div>
-
-</div>
-
-@endsection
+<style>
+    .border-left-primary {
+        border-left: 4px solid #007bff !important;
+    }
+    .border-left-success {
+        border-left: 4px solid #28a745 !important;
+    }
+    .border-left-info {
+        border-left: 4px solid #17a2b8 !important;
+    }
+    .border-left-warning {
+        border-left: 4px solid #ffc107 !important;
+    }
+    .card.hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        transition: all 0.3s ease;
+    }
+</style>

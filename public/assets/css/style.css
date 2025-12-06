@@ -30,6 +30,21 @@ File: style.css
 [data-pc-theme_contrast=true] {
   --bs-body-bg: #ffffff;
   --pc-sidebar-background: transparent;
+/* Fix: Force horizontal card titles in Hasil Admin block (scoped) */
+.hasil-admin-block .card .card-body .card-title,
+.hasil-admin-block .card .card-body h6,
+.hasil-admin-block .card .card-body h6.card-title {
+  writing-mode: horizontal-tb !important;
+  -webkit-writing-mode: horizontal-tb !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+  white-space: normal !important;
+  text-orientation: mixed !important;
+  display: block !important;
+  width: auto !important;
+  line-height: 1.2 !important;
+}
+
   --pc-sidebar-active-color: #0d6efd;
   --pc-sidebar-shadow: 1px 0 3px 0px #dee2e6;
   --pc-sidebar-border: none;
