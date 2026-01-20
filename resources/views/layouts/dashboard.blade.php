@@ -8,6 +8,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description"
             content="Mantis is made using Bootstrap 5 design framework. Download the free admin template & use it for your project.">
         <meta name="keywords"
@@ -47,220 +48,139 @@
         <!-- [ Pre-loader ] End -->
         <!-- [ Sidebar Menu ] start -->
         <nav class="pc-sidebar">
-            <div class="navbar-wrapper">
-                <div class="m-header justify-content-center">
-                    <a href="/" class="b-brand text-dark text-capitalize fw-bold">
-                        <!-- ========   Change your logo from here   ============ -->
-                        <span class="fs-4">{{ auth()->user()->role }} Dashboard</span>
-                    </a>
-                </div>
-                <div class="navbar-content">
-                    <ul class="pc-navbar">
-                        <li class="pc-item {{ request()->is('dashboard') ? 'active' : '' }}">
-                            <a href="/dashboard" class="pc-link">
-                                <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
-                                <span class="pc-mtext">Dashboard</span>
-                            </a>
-</li>
-
-
-
-                </div>
+            <div class="sidebar-content">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('dashboard') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-home"></i> <span class="ms-2">Dashboard</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('siswa.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-users"></i> <span class="ms-2">Data Siswa</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('bk_ai.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-help"></i> <span class="ms-2">BK AI</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('guru_bk.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-user"></i> <span class="ms-2">Guru BK</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('prestasi.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-award"></i> <span class="ms-2">Prestasi</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('pelanggaran.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-alert-triangle"></i> <span class="ms-2">Pelanggaran</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('jadwal_konseling.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-calendar"></i> <span class="ms-2">Jadwal Konseling</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('catatan_konseling.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-notebook"></i> <span class="ms-2">Catatan Konseling</span></a>
+                    </li>
+                </ul>
+                <style>
+                    .sidebar-large {
+                        font-size: 1.25rem;
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                    }
+                    .sidebar-link-large {
+                        padding: 0.75rem 1.25rem;
+                        display: flex;
+                        align-items: center;
+                        border-radius: 8px;
+                        transition: background 0.2s;
+                    }
+                    .sidebar-link-large i {
+                        font-size: 1.4em;
+                    }
+                    .sidebar-link-large:hover, .sidebar-link-large.active {
+                        background: #f0f4ff;
+                        color: #1976d2;
+                        text-decoration: none;
+                    }
+                </style>
             </div>
         </nav>
         <!-- [ Sidebar Menu ] end --> <!-- [ Header Topbar ] start -->
         <header class="pc-header">
-            <div class="header-wrapper"> <!-- [Mobile Media Block] start -->
+            <div class="header-wrapper d-flex justify-content-between align-items-center">
                 <div class="me-auto pc-mob-drp">
-                    <ul class="list-unstyled">
-                        <!-- ======= Menu collapse Icon ===== -->
-                        <li class="pc-h-item pc-sidebar-collapse">
-                            <a href="#" class="pc-head-link ms-0" id="sidebar-hide">
-                                <i class="ti ti-menu-2"></i>
-                            </a>
-                        </li>
-                        <li class="pc-h-item pc-sidebar-popup">
-                            <a href="#" class="pc-head-link ms-0" id="mobile-collapse">
-                                <i class="ti ti-menu-2"></i>
-                            </a>
-                        </li>
-                        <li class="dropdown pc-h-item d-inline-flex d-md-none">
-                            <a class="pc-head-link dropdown-toggle arrow-none m-0" data-bs-toggle="dropdown"
-                                href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                                <i class="ti ti-search"></i>
-                            </a>
-                            <div class="dropdown-menu pc-h-dropdown drp-search">
-                                <form class="px-3">
-                                    <div class="form-group mb-0 d-flex align-items-center">
-                                        <i data-feather="search"></i>
-                                        <input type="search" class="form-control border-0 shadow-none"
-                                            placeholder="Search here. . .">
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
-                        <li class="pc-h-item d-none d-md-inline-flex">
-                            <form class="header-search">
-                                <i data-feather="search" class="icon-search"></i>
-                                <input type="search" class="form-control" placeholder="Search here. . .">
-                            </form>
-                        </li>
-                    </ul>
+                    <!-- Kosongkan kiri jika ingin message di kanan -->
                 </div>
-                <!-- [Mobile Media Block end] -->
-                <div class="ms-auto">
-                    <ul class="list-unstyled">
-                        <li class="dropdown pc-h-item">
-                            <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                                href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                <ul class="d-flex align-items-center mb-0" style="list-style:none;gap:10px;">
+                    {{-- Fitur message/notifikasi hanya untuk admin --}}
+                    @if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())
+                    <li class="dropdown pc-h-item">
+                        <a class="pc-head-link dropdown-toggle arrow-none me-0 position-relative" data-bs-toggle="dropdown"
+                            href="#" role="button" aria-haspopup="false" aria-expanded="false">
                                 <i class="ti ti-mail"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
-                                <div class="dropdown-header d-flex align-items-center justify-content-between">
-                                    <h5 class="m-0">Message</h5>
-                                    <a href="#!" class="pc-head-link bg-transparent"><i
-                                            class="ti ti-x text-danger"></i></a>
+                                @php
+                                    $unreadCount = \App\Models\Notifikasi::where('user_id', auth()->id())->where('is_read', false)->count();
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="badge rounded-circle bg-danger" style="position: absolute; top: -5px; right: -5px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 0; line-height: 1; border: 2px solid white;">
+                                        {{ $unreadCount }}
+                                    </span>
+                                @endif
+                        </a>
+                        @php
+                            $notifs = [];
+                            if (auth()->check()) {
+                                $notifs = \App\Models\Notifikasi::where('user_id', auth()->id())->orderBy('created_at', 'desc')->limit(10)->get();
+                            }
+                        @endphp
+                        <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
+                            <div class="dropdown-header d-flex align-items-center justify-content-between">
+                                 <h5 class="m-0">Message</h5>
+                                 <a href="#" class="pc-head-link bg-transparent" id="closeNotifDropdown"><i class="ti ti-x text-danger"></i></a>
                                 </div>
                                 <div class="dropdown-divider"></div>
                                 <div class="dropdown-header px-0 text-wrap header-notification-scroll position-relative"
                                     style="max-height: calc(100vh - 215px)">
                                     <div class="list-group list-group-flush w-100">
-                                        <a class="list-group-item list-group-item-action">
-                                            <div class="d-flex">
-                                                <div class="flex-shrink-0">
-                                                    <img src="../assets/images/user/avatar-2.jpg" alt="user-image"
-                                                        class="user-avtar">
-                                                </div>
-                                                <div class="flex-grow-1 ms-1">
-                                                    <span class="float-end text-muted">3:00 AM</span>
-                                                    <p class="text-body mb-1">It's <b>Cristina danny's</b> birthday
-                                                        today.</p>
-                                                    <span class="text-muted">2 min ago</span>
-                                                </div>
+                                        @forelse($notifs as $notif)
+                                            <div class="list-group-item list-group-item-action p-0 position-relative">
+                                                <a href="{{ route('jadwal_konseling.index') }}" class="d-flex p-3 text-decoration-none text-dark markAsRead" data-notif-id="{{ $notif->id }}" style="display:flex;">
+                                                    <div class="flex-shrink-0">
+                                                        <img src="{{ asset('assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar">
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-2 w-100">
+                                                        <span class="float-end text-muted small">{{ $notif->created_at->format('d/m H:i') }}</span>
+                                                        <p class="text-body mb-1"><b>{{ $notif->title }}</b></p>
+                                                        <span class="text-muted small">{{ $notif->message }}</span>
+                                                    </div>
+                                                </a>
                                             </div>
-                                        </a>
-                                        <a class="list-group-item list-group-item-action">
-                                            <div class="d-flex">
-                                                <div class="flex-shrink-0">
-                                                    <img src="../assets/images/user/avatar-1.jpg" alt="user-image"
-                                                        class="user-avtar">
-                                                </div>
-                                                <div class="flex-grow-1 ms-1">
-                                                    <span class="float-end text-muted">6:00 PM</span>
-                                                    <p class="text-body mb-1"><b>Aida Burg</b> commented your post.</p>
-                                                    <span class="text-muted">5 August</span>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        <a class="list-group-item list-group-item-action">
-                                            <div class="d-flex">
-                                                <div class="flex-shrink-0">
-                                                    <img src="../assets/images/user/avatar-3.jpg" alt="user-image"
-                                                        class="user-avtar">
-                                                </div>
-                                                <div class="flex-grow-1 ms-1">
-                                                    <span class="float-end text-muted">2:45 PM</span>
-                                                    <p class="text-body mb-1"><b>There was a failure to your setup.</b>
-                                                    </p>
-                                                    <span class="text-muted">7 hours ago</span>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        <a class="list-group-item list-group-item-action">
-                                            <div class="d-flex">
-                                                <div class="flex-shrink-0">
-                                                    <img src="../assets/images/user/avatar-4.jpg" alt="user-image"
-                                                        class="user-avtar">
-                                                </div>
-                                                <div class="flex-grow-1 ms-1">
-                                                    <span class="float-end text-muted">9:10 PM</span>
-                                                    <p class="text-body mb-1"><b>Cristina Danny </b> invited to join
-                                                        <b> Meeting.</b>
-                                                    </p>
-                                                    <span class="text-muted">Daily scrum meeting time</span>
-                                                </div>
-                                            </div>
-                                        </a>
+                                        @empty
+                                            <div class="text-center text-muted py-2">Tidak ada notifikasi</div>
+                                        @endforelse
                                     </div>
                                 </div>
                                 <div class="dropdown-divider"></div>
+                                @if($notifs->count() > 0)
                                 <div class="text-center py-2">
-                                    <a href="#!" class="link-primary">View all</a>
+                                    <a href="{{ route('jadwal_konseling.index') }}" class="link-primary markAllAsRead">View all</a>
                                 </div>
-                            </div>
-                        </li>
-                        <li class="dropdown pc-h-item header-user-profile">
-                            <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                                href="#" role="button" aria-haspopup="false" data-bs-auto-close="outside"
-                                aria-expanded="false">
-                                <img src="{{ asset('assets/images/user/avatar-4.jpg') }}" alt="user-image" class="user-avtar">
-                                    <span>{{ auth()->user() ? auth()->user()->name : 'Guest' }}</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
-                                <div class="dropdown-header">
-                                    <div class="d-flex mb-1 align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <img src="{{ asset('assets/images/user/avatar-4.jpg') }}" alt="user-image"
-                                                class="user-avtar wid-35">
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-1">{{ auth()->user() ? auth()->user()->name : 'Guest' }}</h6>
-                                            <span>{{ auth()->user() ? (auth()->user()->role ?? 'User') : 'Guest' }}</span>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <ul class="nav drp-tabs nav-fill nav-tabs" id="mydrpTab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="drp-t1" data-bs-toggle="tab"
-                                            data-bs-target="#drp-tab-1" type="button" role="tab"
-                                            aria-controls="drp-tab-1" aria-selected="true"><i class="ti ti-user"></i>
-                                            Profile</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="drp-t2" data-bs-toggle="tab"
-                                            data-bs-target="#drp-tab-2" type="button" role="tab"
-                                            aria-controls="drp-tab-2" aria-selected="false"><i
-                                                class="ti ti-settings"></i> Setting</button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content" id="mysrpTabContent">
-                                    <div class="tab-pane fade show active" id="drp-tab-1" role="tabpanel"
-                                        aria-labelledby="drp-t1" tabindex="0">
-
-                                        <a href="/myprofile" class="dropdown-item">
-                                            <i class="ti ti-user"></i>
-                                            <span>My Profile</span>
-                                        </a>
-
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="ti ti-power"></i>
-                                                <span>Logout</span>
-                                            </button>
-                                        </form>
-
-
-                                    </div>
-                                    <div class="tab-pane fade" id="drp-tab-2" role="tabpanel"
-                                        aria-labelledby="drp-t2" tabindex="0">
-                                        <a href="/contact-us" class="dropdown-item">
-                                            <i class="ti ti-help"></i>
-                                            <span>Support</span>
-                                        </a>
-                                        <a href="#!" class="dropdown-item">
-                                            <i class="ti ti-user"></i>
-                                            <span>Account Settings</span>
-                                        </a>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                                @endif
+                        </div>
+                    </li>
+                    @endif
+                    <li class="dropdown pc-h-item header-user-profile">
+                        <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
+                            href="#" role="button" aria-haspopup="false" data-bs-auto-close="outside"
+                            aria-expanded="false">
+                            <span>{{ auth()->user() ? auth()->user()->name : 'Guest' }}</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="ti ti-power"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+                    <!-- Duplicate user profile removed -->
         </header>
         <!-- [ Header ] end -->
 
@@ -271,22 +191,7 @@
             @yield('content')
         </div>
         <!-- [ Main Content ] end -->
-        <footer class="pc-footer">
-            <div class="footer-wrapper container-fluid">
-                <div class="row">
-                    <div class="col-sm my-1">
-                        <p class="m-0">Mantis &#9829; crafted by Team <a
-                                href="https://themeforest.net/user/codedthemes" target="_blank">Codedthemes</a>
-                            Distributed by <a href="https://themewagon.com/">ThemeWagon</a>.</p>
-                    </div>
-                    <div class="col-auto my-1">
-                        <ul class="list-inline footer-link mb-0">
-                            <li class="list-inline-item"><a href="../index.html">Home</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        <!-- Footer dihapus sesuai permintaan -->
 
         <!-- [Page Specific JS] start -->
         <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>

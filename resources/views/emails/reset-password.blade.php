@@ -75,15 +75,14 @@
             </div>
             <div class="content">
                 <p>Halo <b>{{ $name }}</b>,</p>
-                <p>Anda telah meminta untuk mereset password akun Anda. Silakan klik tombol di bawah ini untuk
-                    melanjutkan:</p>
+                <p>Anda telah meminta untuk mereset password akun Anda. Berikut adalah kode OTP Anda:</p>
             </div>
             <div class="button-container">
-                <a href="{{ $resetLink }}" class="btn">Reset Password</a>
+                <h2 style="background-color: #2c3e50; color: white; padding: 20px; border-radius: 5px; letter-spacing: 2px; font-size: 32px;">{{ $otp }}</h2>
             </div>
             <div class="content">
-                <p>Link ini berlaku sampai <b>{{ $expireAt }}</b>. Jika sudah lewat, Anda harus membuat permintaan
-                    ulang.</p>
+                <p>Kode OTP ini berlaku sampai <b>{{ $expireAt }}</b>. Jika sudah lewat, Anda harus membuat permintaan ulang.</p>
+                <p>Jangan bagikan kode OTP ini kepada siapapun.</p>
                 <p>Jika Anda tidak pernah meminta proses ini, abaikan email ini.</p>
             </div>
             <div class="footer">

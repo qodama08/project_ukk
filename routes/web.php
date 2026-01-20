@@ -14,11 +14,24 @@ use App\Http\Controllers\UserController;
 
 
 use App\Http\Controllers\GuruBKController;
+use App\Http\Controllers\BkAiController;
 
-Route::resource('users', UserController::class);
-Route::resource('roles', RoleController::class);
-Route::resource('kelas', KelasController::class);
-Route::resource('jurusan', JurusanController::class);
+Route::middleware('auth')->group(function () {
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+});
+
+Route::middleware(['auth', 'cekRole:admin'])->group(function () {
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('users', [UserController::class, 'store'])->name('users.store');
+    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    
+    Route::resource('roles', RoleController::class);
+    Route::resource('kelas', KelasController::class);
+    Route::resource('jurusan', JurusanController::class);
+});
 
 // Siswa CRUD - admin only
 Route::middleware(['auth', 'cekRole:admin'])->group(function () {
@@ -35,8 +48,19 @@ Route::middleware('auth')->group(function () {
     Route::get('siswa/{siswa}', [SiswaController::class, 'show'])->name('siswa.show');
 });
 
-// Guru BK - admin only
-Route::middleware(['auth', 'cekRole:admin'])->resource('guru_bk', GuruBKController::class);
+// Guru BK - index/show untuk semua user login, create/edit/delete hanya admin
+Route::middleware(['auth', 'cekRole:admin'])->group(function () {
+    Route::get('guru_bk/create', [GuruBKController::class, 'create'])->name('guru_bk.create');
+    Route::post('guru_bk', [GuruBKController::class, 'store'])->name('guru_bk.store');
+    Route::get('guru_bk/{guru_bk}/edit', [GuruBKController::class, 'edit'])->name('guru_bk.edit');
+    Route::put('guru_bk/{guru_bk}', [GuruBKController::class, 'update'])->name('guru_bk.update');
+    Route::delete('guru_bk/{guru_bk}', [GuruBKController::class, 'destroy'])->name('guru_bk.destroy');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('guru_bk', [GuruBKController::class, 'index'])->name('guru_bk.index');
+    Route::get('guru_bk/{guru_bk}', [GuruBKController::class, 'show'])->name('guru_bk.show');
+});
 
 // Pelanggaran - admin only CUD, everyone can view
 Route::middleware(['auth', 'cekRole:admin'])->group(function () {
@@ -66,7 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::get('prestasi/{prestasi}', [PrestasiController::class, 'show'])->name('prestasi.show');
 });
 
-// Catatan Konseling - admin/guru_bk only CUD, everyone can view
+// Catatan Konseling - admin only CUD, everyone can view
 Route::middleware(['auth', 'cekRole:admin'])->group(function () {
     Route::post('catatan_konseling', [CatatanKonselingController::class, 'store'])->name('catatan_konseling.store');
     Route::get('catatan_konseling/create', [CatatanKonselingController::class, 'create'])->name('catatan_konseling.create');
@@ -84,6 +108,7 @@ Route::middleware('auth')->group(function () {
 // Jadwal Konseling - student ONLY create, admin ONLY set_status
 Route::middleware('auth')->group(function () {
     Route::get('jadwal_konseling', [JadwalKonselingController::class, 'index'])->name('jadwal_konseling.index');
+    Route::post('notifikasi/reduce-unread', [\App\Http\Controllers\NotifikasiController::class, 'reduceUnread'])->name('notifikasi.reduceUnread');
 });
 
 // Student only - dapat create jadwal
@@ -98,11 +123,17 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin only - dapat ubah status
-Route::post('jadwal_konseling/{id}/set_status', [JadwalKonselingController::class, 'setStatus'])->middleware(['auth','cekRole:admin'])->name('jadwal_konseling.set_status');
+Route::post('jadwal_konseling/{id}/set_status', [JadwalKonselingController::class, 'setStatus'])->middleware('auth')->name('jadwal_konseling.set_status');
 
 Route::get('/', function () {
+    // Jika user sudah login
+    if (auth()->check()) {
+        // Redirect ke dashboard
+        return redirect()->route('dashboard');
+    }
+    // Jika belum login, tampilkan welcome page
     return view('welcome');
-});
+})->name('home');
 Route::get('/contact-us', function () {
     return view('contact');
 });
@@ -133,6 +164,8 @@ Route::middleware(['guest'])->group(
 
         // Reset password form
         Route::get('/password-reset/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+        Route::get('/verify-otp', [AuthController::class, 'showVerifyOtpForm'])->name('password.verify-otp-form');
+        Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('password.verify-otp');
         Route::post('/password-reset', [AuthController::class, 'resetPassword'])->name('password.update');
     }
 );
@@ -155,15 +188,13 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::middleware(['cekRole:admin'])->group(function () {
         Route::get('notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index'])->name('notifikasi.index');
         Route::post('notifikasi/{id}/read', [\App\Http\Controllers\NotifikasiController::class, 'markRead'])->name('notifikasi.read');
+        Route::post('notifikasi/{id}/delete', [\App\Http\Controllers\NotifikasiController::class, 'destroy'])->name('notifikasi.destroy');
     });
 
-    // User routes
-    Route::middleware(['cekRole:user'])->group(function () {
-
+    // BK AI Routes
+    Route::prefix('bk-ai')->name('bk_ai.')->group(function () {
+        Route::get('/', [BkAiController::class, 'index'])->name('index');
+        Route::post('/chat', [BkAiController::class, 'chat'])->name('chat');
     });
 
-    // Guru BK routes
-    Route::middleware(['cekGuruBK'])->group(function () {
-        // Guru BK can only view and manage their own jadwal & catatan konseling
-    });
 });

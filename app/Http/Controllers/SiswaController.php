@@ -31,11 +31,34 @@ public function create()
 public function store(Request $request)
 {
 	$validated = $request->validate([
-		'nisn' => 'required|unique:users,nisn',
+		'nisn' => 'required|numeric|unique:users,nisn',
 		'name' => 'required',
+		'email' => 'required|email|unique:users,email',
+		'kelas_id' => 'required',
+		'absen' => [
+			'required',
+			'numeric',
+			function ($attribute, $value, $fail) use ($request) {
+				$exists = User::where('kelas_id', $request->kelas_id)
+					->where('absen', $value)
+					->whereNotNull('nisn')
+					->exists();
+				if ($exists) {
+					$fail('Nomor absen ' . $value . ' sudah ada di kelas ini.');
+				}
+			},
+		],
+		'umur' => 'required|numeric',
+		'nomor_hp' => 'required|numeric|unique:users,nomor_hp',
+		'alamat' => 'required',
+		'nama_ayah' => 'required',
+		'nama_ibu' => 'required',
+		'nama_wali' => 'nullable',
+		'hubungan_wali' => 'nullable',
+		'nomor_hp_wali' => 'required|numeric',
 	]);
 
-	$payload = $validated + $request->only(['kelas_id','jurusan_id','absen','umur','nomor_hp','alamat','nama_ayah','nama_ibu','nama_wali','hubungan_wali','nomor_hp_wali']);
+	$payload = $validated + $request->only(['jurusan_id']);
 	$payload['password'] = bcrypt($request->input('password', 'password'));
 	$payload['role'] = $payload['role'] ?? 'user';
 
@@ -53,19 +76,44 @@ public function show(User $siswa)
 public function edit(User $siswa)
 {
 	$kelasJurusanOptions = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('nama_kelas')->get();
+	$daftarSiswa = User::with('kelas')->whereNotNull('nisn')->get();
 	
-	return view('user.siswa.edit', compact('siswa','kelasJurusanOptions'));
+	return view('user.siswa.edit', compact('siswa','kelasJurusanOptions','daftarSiswa'));
 }
 
 
 public function update(Request $request, User $siswa)
 {
 	$validated = $request->validate([
-		'nisn' => 'required|unique:users,nisn,' . $siswa->id,
+		'nisn' => 'required|numeric|unique:users,nisn,' . $siswa->id,
 		'name' => 'required',
+		'email' => 'required|email|unique:users,email,' . $siswa->id,
+		'kelas_id' => 'required',
+		'absen' => [
+			'required',
+			'numeric',
+			function ($attribute, $value, $fail) use ($request, $siswa) {
+				$exists = User::where('kelas_id', $request->kelas_id)
+					->where('absen', $value)
+					->where('id', '!=', $siswa->id)
+					->whereNotNull('nisn')
+					->exists();
+				if ($exists) {
+					$fail('Nomor absen ' . $value . ' sudah ada di kelas ini.');
+				}
+			},
+		],
+		'umur' => 'required|numeric',
+		'nomor_hp' => 'required|numeric|unique:users,nomor_hp,' . $siswa->id,
+		'alamat' => 'required',
+		'nama_ayah' => 'required',
+		'nama_ibu' => 'required',
+		'nama_wali' => 'nullable',
+		'hubungan_wali' => 'nullable',
+		'nomor_hp_wali' => 'required|numeric',
 	]);
 
-	$siswa->update($validated + $request->only(['kelas_id','jurusan_id','absen','umur','nomor_hp','alamat','nama_ayah','nama_ibu','nama_wali','hubungan_wali','nomor_hp_wali']));
+	$siswa->update($validated + $request->only(['jurusan_id']));
 
 	return redirect()->route('siswa.index')->with('success','Siswa berhasil diperbarui');
 }

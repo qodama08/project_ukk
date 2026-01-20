@@ -14,6 +14,16 @@ use HasFactory;
 protected $table = 'kelas';
 protected $fillable = ['nama_kelas','tingkat','wali_kelas_id','tahun_ajaran','jurusan_id'];
 
+protected static function boot()
+{
+parent::boot();
+
+// Automatically delete related users when kelas is deleted
+static::deleting(function ($kelas) {
+// Delete all siswa in this kelas
+User::where('kelas_id', $kelas->id)->delete();
+});
+}
 
 public function wali()
 {

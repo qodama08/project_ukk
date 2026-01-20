@@ -18,10 +18,11 @@ class JadwalKonselingController extends Controller
         $user = Auth::user();
         $query = JadwalKonseling::with(['siswa','guru','catatan'])->orderBy('tanggal','desc');
 
-        // Jika guru BK, hanya tampilkan jadwal yang di-assign ke mereka
-        if ($user && $user->roles()->where('nama_role','guru_bk')->exists()) {
-            $query->where('guru_bk_id', $user->id);
+        // Jika user (siswa), hanya tampilkan jadwal milik mereka
+        if ($user && $user->role !== 'admin') {
+            $query->where('siswa_id', $user->id);
         }
+        // Jika admin, tampilkan semua jadwal konseling
 
         $jadwals = $query->paginate(20);
         if (request()->wantsJson()) return response()->json($jadwals);
@@ -36,8 +37,11 @@ class JadwalKonselingController extends Controller
         if (request()->wantsJson()) {
             return response()->json(['message' => 'Use POST /jadwal_konseling to create']);
         }
-        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->orderBy('name')->get();
-        return view('jadwal_konseling.form', ['gurus' => $gurus]);
+        // Only pass siswa data if user is admin
+        $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
+        $siswa = $isAdmin ? User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get() : [];
+        $gurus = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->orderBy('name')->get();
+        return view('jadwal_konseling.form', ['siswa' => $siswa, 'gurus' => $gurus, 'isAdmin' => $isAdmin]);
     }
 
     /**
@@ -47,22 +51,25 @@ class JadwalKonselingController extends Controller
     {
         $data = $request->validate([
             'siswa_id' => 'nullable|exists:users,id',
-            'nama_siswa' => 'required_without:siswa_id|string|max:255',
-            'kelas' => 'nullable|string|max:50',
-            'absen' => 'nullable|string|max:10',
+            'nama_siswa' => 'required|string|max:255',
+            'kelas' => 'required|string|max:50',
+            'absen' => 'required|string|max:10',
             'tanggal' => 'required|date',
             'jam' => 'required',
             'tempat' => 'nullable|string',
             'status' => 'nullable|in:pending,terjadwal,selesai,batal',
-            'guru_bk_id' => 'nullable|exists:users,id',
+            'guru_bk_id' => 'required|exists:users,id',
         ]);
 
         // default siswa_id to authenticated user when available
         $data['siswa_id'] = $data['siswa_id'] ?? (Auth::check() ? Auth::id() : null);
-        // default guru_bk_id to auth user if not provided
-        $data['guru_bk_id'] = $data['guru_bk_id'] ?? (Auth::check() ? Auth::id() : null);
         // Default status when a student submits is 'pending' unless explicitly set
         $data['status'] = $data['status'] ?? 'pending';
+
+        // Ensure tanggal is not before today
+        if (isset($data['tanggal']) && $data['tanggal'] < now()->format('Y-m-d')) {
+            return back()->withInput()->withErrors(['tanggal' => 'Tanggal tidak boleh sebelum hari ini.']);
+        }
 
         try {
             $jadwal = JadwalKonseling::create($data);
@@ -115,9 +122,11 @@ class JadwalKonselingController extends Controller
     {
         $jadwal = JadwalKonseling::with(['siswa','guru'])->findOrFail($id);
         if (request()->wantsJson()) return response()->json($jadwal);
-        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->orderBy('name')->get();
+        $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
+        $siswa = $isAdmin ? User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get() : [];
+        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','admin'); })->orderBy('name')->get();
         // Show form view that displays details and allows status update (form will be read-only except for admin status field)
-        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'gurus' => $gurus]);
+        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'siswa' => $siswa, 'gurus' => $gurus]);
     }
 
     /**
@@ -127,13 +136,15 @@ class JadwalKonselingController extends Controller
     {
         $jadwal = JadwalKonseling::with(['siswa','guru'])->findOrFail($id);
         if (request()->wantsJson()) return response()->json($jadwal);
-        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->orderBy('name')->get();
+        $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
+        $siswa = $isAdmin ? User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get() : [];
+        $gurus = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->orderBy('name')->get();
         // only the owner (siswa who created the jadwal) may edit
         if (!Auth::check() || Auth::id() != $jadwal->siswa_id) {
             abort(403, 'Unauthorized - only owner can edit jadwal');
         }
 
-        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'gurus' => $gurus]);
+        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'siswa' => $siswa, 'gurus' => $gurus, 'isAdmin' => $isAdmin]);
     }
 
     /**
@@ -147,15 +158,20 @@ class JadwalKonselingController extends Controller
             abort(403, 'Unauthorized - only owner can update jadwal');
         }
         $data = $request->validate([
-            'nama_siswa' => 'nullable|string',
-            'kelas' => 'nullable|string',
-            'absen' => 'nullable|string',
-            'tanggal' => 'nullable|date',
-            'jam' => 'nullable',
+            'nama_siswa' => 'required|string',
+            'kelas' => 'required|string',
+            'absen' => 'required|string',
+            'tanggal' => 'required|date',
+            'jam' => 'required',
             'tempat' => 'nullable|string',
             'status' => 'nullable|in:pending,terjadwal,selesai,batal',
             'guru_bk_id' => 'nullable|exists:users,id',
         ]);
+
+        // Ensure tanggal is not before today
+        if (isset($data['tanggal']) && $data['tanggal'] < now()->format('Y-m-d')) {
+            return back()->withInput()->withErrors(['tanggal' => 'Tanggal tidak boleh sebelum hari ini.']);
+        }
 
         $jadwal->update($data);
         if (request()->wantsJson()) return response()->json(['message' => 'Updated', 'data' => $jadwal]);
@@ -183,6 +199,12 @@ class JadwalKonselingController extends Controller
      */
     public function setStatus(Request $request, $id)
     {
+        // Verify user is admin
+        $user = auth()->user();
+        if (!$user || $user->role !== 'admin') {
+            abort(403, 'Unauthorized - only admin can change status');
+        }
+
         $jadwal = JadwalKonseling::findOrFail($id);
         $data = $request->validate([
             'status' => 'required|in:pending,terjadwal,selesai,batal'

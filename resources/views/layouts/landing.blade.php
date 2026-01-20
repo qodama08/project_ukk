@@ -49,7 +49,7 @@
         </style>
     </head>
 
-    <body class="landing-page">
+    <body class="landing-page" style="overflow: hidden; height: 100vh;">
         <!-- [ Main Content ] start -->
         <!-- [ Pre-loader ] start -->
         <div class="loader-bg">
@@ -60,8 +60,8 @@
 
         <nav class="navbar navbar-expand-md navbar-dark top-nav-collapse default py-0">
             <div class="container">
-                <a class="navbar-brand" href="/">
-                    <img width="70" src="{{ asset('assets/images/my/images.png') }}" alt="logo">
+                    <a class="navbar-brand" href="/">
+                        <img width="70" src="{{ asset('assets/images/my/logosekolah.png') }}" alt="logo">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false"
@@ -77,10 +77,7 @@
                             <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}"
                                 href="/dashboard">Dashboard</a>
                         </li>
-                        <li class="nav-item pe-1">
-                            <a class="nav-link {{ request()->is('contact-us') ? 'active' : '' }}"
-                                href="/contact-us">Contact Us</a>
-                        </li>
+                        <!-- Contact Us button dihapus -->
 
                         @if (auth()->check())
                             <li class="nav-item">
@@ -97,75 +94,7 @@
         </nav>
         <!-- [ Pre-loader ] End -->
         @yield('content')
-        <footer class="footer bg-dark text-white py-4">
-            <div class="top-footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="{{ asset('assets/images/my/images.png') }}"
-                                alt="Logo Sekolah Harapan Bangsa" class="img-fluid mb-3" style="max-width: 200px;">
-                            <p class="opacity-75"></p>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <h5 class="text-white mb-4">Navigasi</h5>
-                                    <ul class="list-unstyled footer-link">
-                                        <li><a href="/">Beranda</a></li>
-                                        <li><a href="/#alur">Alur Pendaftaran</a></li>
-                                        <li><a href="#">Pengumuman</a></li>
-                                        <li><a href="/contact">Kontak</a></li>
-                                    </ul>
-                                </div>
-                                <div class="col-sm-4">
-                                    <h5 class="text-white mb-4">Hubungi Kami</h5>
-                                    <ul class="list-unstyled footer-link">
-                                        <li class="d-flex">
-                                            <i class="ti ti-map-pin me-2 mt-1"></i>
-                                            <span></span>
-                                        </li>
-                                        <li class="d-flex">
-                                            <i class="ti ti-mail me-2 mt-1"></i>
-                                            <span></span>
-                                        </li>
-                                        <li class="d-flex">
-                                            <i class="ti ti-phone me-2 mt-1"></i>
-                                            <span></span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="col-sm-4">
-                                    <h5 class="text-white mb-4">Tautan Lainnya</h5>
-                                    <ul class="list-unstyled footer-link">
-                                        <li><a href="#">Kebijakan Privasi</a></li>
-                                        <li><a href="#">Syarat & Ketentuan</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bottom-footer">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col my-1">
-                            <p class="text-white mb-0">© {{ date('Y') }}</p>
-                        </div>
-                        <div class="col-auto my-1">
-                            <ul class="list-inline footer-sos-link mb-0">
-                                <li class="list-inline-item"><a href="#"><i
-                                            class="ph-duotone ph-facebook-logo f-20"></i></a></li>
-                                <li class="list-inline-item"><a href="#"><i
-                                            class="ph-duotone ph-instagram-logo f-20"></i></a></li>
-                                <li class="list-inline-item"><a href="#"><i
-                                            class="ph-duotone ph-youtube-logo f-20"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        <!-- Footer dihapus dari landing page -->
         <!-- [ footer ] End -->
 
         <!-- [ Customize ] start -->

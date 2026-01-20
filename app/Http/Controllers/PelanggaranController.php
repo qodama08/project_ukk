@@ -28,8 +28,8 @@ class PelanggaranController extends Controller
         if (request()->wantsJson()) {
             return response()->json(['message' => 'Use POST to /pelanggaran to create']);
         }
-        $user = User::all();
-        return view('pelanggaran.form', ['user' => $user]);
+        $siswa = User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','siswa'); })->orderBy('name')->get();
+        return view('pelanggaran.form', ['siswa' => $siswa]);
     }
 
     /**
@@ -38,15 +38,14 @@ class PelanggaranController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nama_pelanggaran' => 'required|string',
-            'poin' => 'required|integer',
-            'tingkat_warna' => 'nullable|in:hijau,kuning,merah',
-            'opsi_pengawasan' => 'nullable|string',
-            'user_id' => 'nullable|exists:users,id',
-            'nama_siswa' => 'nullable|string|max:255',
-            'kelas' => 'nullable|string|max:50',
-            'absen' => 'nullable|string|max:10',
+            'siswa_id' => 'required|exists:users,id',
+            'nama_siswa' => 'required|string|max:255',
+            'kelas' => 'required|string|max:50',
+            'absen' => 'required|string|max:10',
         ]);
+
+        // Map siswa_id to user_id for backward compatibility
+        $data['user_id'] = $data['siswa_id'];
 
         $pel = Pelanggaran::create($data);
         if (request()->wantsJson()) {
@@ -62,8 +61,8 @@ class PelanggaranController extends Controller
     {
         $pel = Pelanggaran::with('user')->findOrFail($id);
         if (request()->wantsJson()) return response()->json($pel);
-        $user = User::all();
-        return view('pelanggaran.form', ['item' => $pel, 'user' => $user]);
+        $siswa = User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','siswa'); })->orderBy('name')->get();
+        return view('pelanggaran.form', ['item' => $pel, 'siswa' => $siswa]);
     }
 
     /**
@@ -73,8 +72,8 @@ class PelanggaranController extends Controller
     {
         $pel = Pelanggaran::with('user')->findOrFail($id);
         if (request()->wantsJson()) return response()->json($pel);
-        $user = User::all();
-        return view('pelanggaran.form', ['item' => $pel, 'user' => $user]);
+        $siswa = User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','siswa'); })->orderBy('name')->get();
+        return view('pelanggaran.form', ['item' => $pel, 'siswa' => $siswa]);
     }
 
     /**
@@ -84,15 +83,15 @@ class PelanggaranController extends Controller
     {
         $pel = Pelanggaran::findOrFail($id);
         $data = $request->validate([
-            'nama_pelanggaran' => 'nullable|string',
-            'poin' => 'nullable|integer',
-            'tingkat_warna' => 'nullable|in:hijau,kuning,merah',
-            'opsi_pengawasan' => 'nullable|string',
-            'user_id' => 'nullable|exists:users,id',
-            'nama_siswa' => 'nullable|string|max:255',
-            'kelas' => 'nullable|string|max:50',
-            'absen' => 'nullable|string|max:10',
+            'siswa_id' => 'required|exists:users,id',
+            'nama_siswa' => 'required|string|max:255',
+            'kelas' => 'required|string|max:50',
+            'absen' => 'required|string|max:10',
         ]);
+        
+        // Map siswa_id to user_id for backward compatibility
+        $data['user_id'] = $data['siswa_id'];
+        
         $pel->update($data);
         if (request()->wantsJson()) return response()->json(['message' => 'Updated', 'data' => $pel]);
         return redirect()->route('pelanggaran.index')->with('success','Pelanggaran diperbarui');

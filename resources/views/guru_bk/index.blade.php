@@ -1,10 +1,25 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
+
+@section('title', 'Daftar Guru BK')
 
 @section('content')
-<div class="container-fluid">
+<div class="pc-content">
+    <div class="page-header">
+        <div class="page-block">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Guru BK</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h2 class="mb-4">Daftar Guru BK</h2>
     <div class="row align-items-center mb-4">
         <div class="col-md-8">
-            <h1>Daftar Guru BK</h1>
         </div>
         <div class="col-md-4 text-end">
             @if(auth()->user()->role === 'admin')
@@ -24,7 +39,9 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>No. HP</th>
+                        @if(auth()->user()->role === 'admin')
                         <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -34,22 +51,20 @@
                             <td>{{ $guru->name }}</td>
                             <td>{{ $guru->email }}</td>
                             <td>{{ $guru->nomor_hp ?? '-' }}</td>
+                            @if(auth()->user()->role === 'admin')
                             <td>
-                                @if(auth()->user()->role === 'admin')
-                                    <a href="{{ route('guru_bk.edit', $guru->id) }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <form action="{{ route('guru_bk.destroy', $guru->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">
-                                            <i class="fas fa-trash"></i> Hapus
-                                        </button>
-                                    </form>
-                                @else
-                                    -
-                                @endif
+                                <a href="{{ route('guru_bk.edit', $guru->id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <form action="{{ route('guru_bk.destroy', $guru->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </form>
                             </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

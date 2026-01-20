@@ -9,5 +9,10 @@ class Prestasi extends Model
 {
     use HasFactory;
     protected $table = 'prestasi';
-    protected $fillable = ['nama_siswa','kelas','absen','nama_prestasi','deskripsi'];
+    protected $fillable = ['nama_siswa','kelas','absen','nama_prestasi','deskripsi','siswa_id','tingkat','kategori','tanggal','gambar'];
+    
+    public function siswa()
+    {
+        return $this->belongsTo(User::class, 'siswa_id');
+    }
 }

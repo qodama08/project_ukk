@@ -10,10 +10,8 @@ class GuruBKController extends Controller
 {
     public function index()
     {
-        $gurus = User::whereHas('roles', function($q) {
-            $q->where('nama_role', 'guru_bk');
-        })->orderBy('name')->paginate(15);
-        
+        $gurus = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->orderBy('name')->paginate(15);
+
         return view('guru_bk.index', compact('gurus'));
     }
 
@@ -22,12 +20,19 @@ class GuruBKController extends Controller
         return view('guru_bk.create');
     }
 
+    public function show($id)
+    {
+        $guru_bk = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->findOrFail($id);
+
+        return view('guru_bk.show', compact('guru_bk'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'nomor_hp' => 'nullable|string|max:20',
+            'nomor_hp' => 'nullable|string|max:20|unique:users,nomor_hp',
         ]);
 
         try {
@@ -36,17 +41,9 @@ class GuruBKController extends Controller
                 'email' => $validated['email'],
                 'nomor_hp' => $validated['nomor_hp'] ?? null,
                 'password' => bcrypt('password123'),
-                'role' => 'admin', // Set role field to admin
+                'role' => 'admin',
                 'is_verified' => 1,
             ]);
-
-            // Attach guru_bk role via pivot table
-            $role = Role::firstOrCreate(['nama_role' => 'guru_bk'], [
-                'deskripsi' => 'Guru Bimbingan Konseling',
-                'is_multi' => 0
-            ]);
-            
-            $guru->roles()->attach($role->id);
 
             return redirect()->route('guru_bk.index')->with('success', 'Guru BK berhasil ditambahkan');
         } catch (\Exception $e) {
@@ -56,12 +53,7 @@ class GuruBKController extends Controller
 
     public function edit($id)
     {
-        $guru_bk = User::findOrFail($id);
-        
-        // Verify this user is a guru_bk
-        if (!$guru_bk->roles()->where('nama_role', 'guru_bk')->exists()) {
-            abort(404, 'Guru BK tidak ditemukan');
-        }
+        $guru_bk = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->findOrFail($id);
 
         return view('guru_bk.edit', compact('guru_bk'));
     }
@@ -78,7 +70,7 @@ class GuruBKController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $guru_bk->id,
-            'nomor_hp' => 'nullable|string|max:20',
+            'nomor_hp' => 'nullable|string|max:20|unique:users,nomor_hp,' . $guru_bk->id,
         ]);
 
         try {
@@ -91,12 +83,7 @@ class GuruBKController extends Controller
 
     public function destroy($id)
     {
-        $guru_bk = User::findOrFail($id);
-        
-        // Verify this user is a guru_bk
-        if (!$guru_bk->roles()->where('nama_role', 'guru_bk')->exists()) {
-            abort(404, 'Guru BK tidak ditemukan');
-        }
+        $guru_bk = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->findOrFail($id);
 
         try {
             $guru_bk->delete();

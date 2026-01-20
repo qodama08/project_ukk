@@ -14,16 +14,16 @@ class ResetPasswordMail extends Mailable
     use Queueable, SerializesModels;
 
     public $name;
-    public $resetLink;
+    public $otp;
     public $expireAt;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $resetLink, $expireAt)
+    public function __construct($name, $otp, $expireAt)
     {
         $this->name = $name;
-        $this->resetLink = $resetLink;
+        $this->otp = $otp;
         $this->expireAt = $expireAt;
     }
 

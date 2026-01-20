@@ -50,10 +50,10 @@
         <div class="auth-main">
             <div class="auth-wrapper v3">
                 <div class="auth-form"
-                    style="background-image: url({{ asset('assets/images/my/images.png') }});background-size:cover;">
+                    style="background-image: url({{ asset('assets/images/my/logosekolah.png') }});background-size:cover;">
                     <div class="auth-header">
                         <a class="navbar-brand" href="/">
-                            <img width="100" src="{{ asset('assets/images/my/images.png') }}" alt="logo">
+                            <img width="100" src="{{ asset('assets/images/my/logosekolah.png') }}" alt="logo">
                         </a>
                     </div>
 

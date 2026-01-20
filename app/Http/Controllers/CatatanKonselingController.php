@@ -18,8 +18,8 @@ class CatatanKonselingController extends Controller
         $user = Auth::user();
         $query = CatatanKonseling::with(['siswa','guru','jadwal'])->orderBy('created_at','desc');
 
-        // Jika guru BK, hanya tampilkan catatan yang mereka handle
-        if ($user && $user->roles()->where('nama_role','guru_bk')->exists()) {
+        // Jika admin (Guru BK), hanya tampilkan catatan yang mereka handle
+        if ($user && ($user->role === 'admin' || $user->roles()->where('nama_role','admin')->exists())) {
             $query->where('guru_bk_id', $user->id);
         }
 
@@ -52,7 +52,7 @@ class CatatanKonselingController extends Controller
 
         $jadwal = JadwalKonseling::findOrFail($data['jadwal_id']);
 
-        $data['user_id'] = $jadwal->siswa_id;
+        $data['siswa_id'] = $jadwal->siswa_id;
         $data['guru_bk_id'] = $data['guru_bk_id'] ?? (Auth::check() ? Auth::id() : $jadwal->guru_bk_id);
         $data['created_at'] = now();
 

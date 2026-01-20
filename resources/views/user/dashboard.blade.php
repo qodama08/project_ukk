@@ -3,8 +3,8 @@
 try {
     $totalSiswa = class_exists('\App\Models\User') ? \App\Models\User::whereNotNull('nisn')->count() : 0;
     $totalGuruBK = 0;
-    if (class_exists('\App\Models\User') && method_exists(\App\Models\User::class, 'roles')) {
-        $totalGuruBK = \App\Models\User::whereHas('roles', function($q){ $q->where('nama_role','guru_bk'); })->count();
+    if (class_exists('\App\Models\User')) {
+        $totalGuruBK = \App\Models\User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->count();
     }
     $totalJadwal = class_exists('\App\Models\JadwalKonseling') ? \App\Models\JadwalKonseling::count() : 0;
     $totalPrestasi = class_exists('\App\Models\Prestasi') ? \App\Models\Prestasi::count() : 0;
@@ -32,7 +32,7 @@ try {
                 <h6 class="card-title mb-0">Guru BK</h6>
                 <div class="h3 mb-0 font-weight-bold text-success">{{ $totalGuruBK }}</div>
             </div>
-            <a href="{{ url('/users') }}" class="card-footer bg-white">
+            <a href="{{ url('/guru_bk') }}" class="card-footer bg-white">
                 <span class="small">Kelola →</span>
             </a>
         </div>

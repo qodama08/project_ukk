@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('roles')->orderBy('name')->paginate(20);
-        return response()->json($users);
+        return view('users.index', ['users' => $users]);
     }
 
     /**
@@ -26,7 +26,7 @@ class UserController extends Controller
         if (!auth()->check() || auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
-        return response()->json(['message' => 'Use POST /users to create']);
+        return view('users.create');
     }
 
     /**
@@ -64,7 +64,7 @@ class UserController extends Controller
     public function show(string $id)
     {
         $user = User::with('roles')->findOrFail($id);
-        return response()->json($user);
+        return view('users.show', ['user' => $user]);
     }
 
     /**
@@ -76,7 +76,7 @@ class UserController extends Controller
             abort(403, 'Unauthorized');
         }
         $user = User::findOrFail($id);
-        return response()->json($user);
+        return view('users.edit', ['user' => $user]);
     }
 
     /**
