@@ -10,9 +10,9 @@ return new class extends Migration
     {
         if (Schema::hasTable('pelanggaran')) {
             Schema::table('pelanggaran', function (Blueprint $table) {
-                $table->string('nama_siswa')->nullable()->after('user_id');
-                $table->string('kelas')->nullable()->after('nama_siswa');
-                $table->string('absen')->nullable()->after('kelas');
+                $table->string('nama_siswa')->nullable();
+                $table->string('kelas')->nullable();
+                $table->string('absen')->nullable();
             });
         }
     }
