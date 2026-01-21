@@ -50,6 +50,14 @@ class CatatanKonselingController extends Controller
             'guru_bk_id' => 'nullable|exists:users,id',
         ]);
 
+        // Check if catatan konseling already exists for this jadwal
+        $existingNote = CatatanKonseling::where('jadwal_id', $data['jadwal_id'])->first();
+        if ($existingNote) {
+            // Redirect to edit the existing catatan
+            if (request()->wantsJson()) return response()->json(['message' => 'Catatan sudah ada, redirecting to edit', 'redirect' => route('catatan_konseling.edit', $existingNote->id)], 302);
+            return redirect()->route('catatan_konseling.edit', $existingNote->id)->with('info', 'Catatan konseling sudah ada, silakan edit data yang sudah ada.');
+        }
+
         $jadwal = JadwalKonseling::findOrFail($data['jadwal_id']);
 
         $data['siswa_id'] = $jadwal->siswa_id;

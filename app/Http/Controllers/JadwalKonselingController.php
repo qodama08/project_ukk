@@ -77,24 +77,6 @@ class JadwalKonselingController extends Controller
             return back()->withInput()->withErrors(['error' => 'Gagal menyimpan jadwal: ' . $e->getMessage()]);
         }
 
-        // create a pending catatan_konseling entry summarizing the submission
-        try {
-            $siswa = $jadwal->siswa;
-            $guru = $jadwal->guru;
-            $hasil = "Pengajuan jadwal oleh " . ($jadwal->nama_siswa ?? ($siswa->name ?? 'N/A')) . " pada " . ($jadwal->tanggal ?? '') . " " . ($jadwal->jam ?? '') . ". Guru: " . ($guru->name ?? '-') . ". Tempat: " . ($jadwal->tempat ?? '-') . ". Kelas: " . ($jadwal->kelas ?? '-') . ", Absen: " . ($jadwal->absen ?? '-');
-
-            CatatanKonseling::create([
-                'jadwal_id' => $jadwal->id,
-                'siswa_id' => $jadwal->siswa_id,
-                'guru_bk_id' => $jadwal->guru_bk_id,
-                'hasil' => $hasil,
-                'status' => 'pending',
-                'created_at' => now(),
-            ]);
-        } catch (\Exception $e) {
-            // don't fail the whole request if note creation fails; log if needed
-        }
-
         // Create notifications for all admins so they can review the pending jadwal
         try {
             $admins = User::whereHas('roles', function($q){ $q->where('nama_role','admin'); })->get();

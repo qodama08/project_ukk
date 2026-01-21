@@ -34,7 +34,7 @@
       @foreach($notes as $n)
         <tr>
           <td>{{ $loop->iteration }}</td>
-          <td>{{ $n->siswa->name ?? ($n->jadwal->nama_siswa ?? '-') }}</td>
+          <td>{{ $n->jadwal->nama_siswa ?? ($n->siswa->name ?? '-') }}</td>
           <td>{{ $n->jadwal->guru->name ?? $n->guru->name ?? '-' }}</td>
             <td>{{ \Illuminate\Support\Str::limit($n->hasil,60) }}</td>
           <td>{{ $n->created_at }}</td>

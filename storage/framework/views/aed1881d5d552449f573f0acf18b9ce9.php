@@ -31,7 +31,7 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" onchange="loadJadwalDetails()" required>
           <option value="">-- Pilih Jadwal Konseling --</option>
-          <?php $__currentLoopData = App\Models\JadwalKonseling::with('siswa','guru')->orderBy('tanggal','desc')->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $j): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+          <?php $__currentLoopData = App\Models\JadwalKonseling::with('siswa','guru','catatan')->orderBy('tanggal','desc')->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $j): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <option value="<?php echo e($j->id); ?>" data-siswa="<?php echo e($j->nama_siswa ?? ($j->siswa->name ?? '-')); ?>" data-guru="<?php echo e($j->guru->name ?? '-'); ?>" <?php echo e((old('jadwal_id', $note->jadwal_id ?? '')==$j->id)?'selected':''); ?>>#<?php echo e($j->id); ?> - <?php echo e($j->nama_siswa ?? $j->siswa->name ?? '-'); ?> (<?php echo e($j->tanggal); ?>) <?php echo e($j->jam); ?></option>
           <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </select>

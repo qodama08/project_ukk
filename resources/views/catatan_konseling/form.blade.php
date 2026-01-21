@@ -26,7 +26,7 @@
         <label class="form-label">Jadwal Konseling</label>
         <select id="jadwal_id" name="jadwal_id" class="form-control @error('jadwal_id') is-invalid @enderror" onchange="loadJadwalDetails()" required>
           <option value="">-- Pilih Jadwal Konseling --</option>
-          @foreach(App\Models\JadwalKonseling::with('siswa','guru')->orderBy('tanggal','desc')->get() as $j)
+          @foreach(App\Models\JadwalKonseling::with('siswa','guru','catatan')->orderBy('tanggal','desc')->get() as $j)
             <option value="{{ $j->id }}" data-siswa="{{ $j->nama_siswa ?? ($j->siswa->name ?? '-') }}" data-guru="{{ $j->guru->name ?? '-' }}" {{ (old('jadwal_id', $note->jadwal_id ?? '')==$j->id)?'selected':'' }}>#{{ $j->id }} - {{ $j->nama_siswa ?? $j->siswa->name ?? '-' }} ({{ $j->tanggal }}) {{ $j->jam }}</option>
           @endforeach
         </select>
