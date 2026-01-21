@@ -43,38 +43,25 @@
           <td>{{ $j->jam }}</td>
           <td>
             @php
-              $note = $j->catatan ?? null;
+              $statusClass = 'bg-secondary';
+              if ($j->status == 'pending') $statusClass = 'bg-warning text-dark';
+              elseif ($j->status == 'terjadwal') $statusClass = 'bg-primary';
+              elseif ($j->status == 'selesai') $statusClass = 'bg-success';
+              elseif ($j->status == 'batal') $statusClass = 'bg-danger';
+              $statusLabels = [
+                'pending' => 'Menunggu',
+                'terjadwal' => 'Terjadwal',
+                'selesai' => 'Selesai',
+                'batal' => 'Batal'
+              ];
+              $statusLabel = $statusLabels[$j->status] ?? ucwords(str_replace('_',' ',$j->status));
             @endphp
-
-            @if($note)
-              @php
-                $noteStatus = $note->status ?? 'pending';
-                $noteBadge = ($noteStatus == 'setuju') ? 'bg-success' : 'bg-warning text-dark';
-                $noteLabel = ($noteStatus == 'setuju') ? 'Disetujui' : 'Menunggu';
-              @endphp
-              <span class="badge {{ $noteBadge }}">{{ $noteLabel }}</span>
-            @else
-              @php
-                $statusClass = 'bg-secondary';
-                if ($j->status == 'pending') $statusClass = 'bg-warning text-dark';
-                elseif ($j->status == 'terjadwal') $statusClass = 'bg-primary';
-                elseif ($j->status == 'selesai') $statusClass = 'bg-success';
-                elseif ($j->status == 'batal') $statusClass = 'bg-danger';
-                $statusLabels = [
-                  'pending' => 'Menunggu',
-                  'terjadwal' => 'Terjadwal',
-                  'selesai' => 'Selesai',
-                  'batal' => 'Batal'
-                ];
-                $statusLabel = $statusLabels[$j->status] ?? ucwords(str_replace('_',' ',$j->status));
-              @endphp
-              <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
-            @endif
+            <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
           </td>
           @if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())
           <td>
-            {{-- Admin only: can set status to selesai when pending --}}
-            @if($j->status == 'pending')
+            {{-- Admin only: can set status to selesai when pending or terjadwal --}}
+            @if($j->status == 'pending' || $j->status == 'terjadwal')
                 <form action="{{ url('/jadwal_konseling/'.$j->id.'/set_status') }}" method="POST" style="display:inline-block">
                   @csrf
                   <input type="hidden" name="status" value="selesai">
