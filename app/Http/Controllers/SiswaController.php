@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Kelas;
 use App\Models\Jurusan;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 
@@ -51,21 +52,35 @@ public function store(Request $request)
 				}
 			},
 		],
-		'umur' => 'required|numeric',
+		'umur' => 'nullable|numeric',
 		'nomor_hp' => 'required|numeric|unique:users,nomor_hp',
-		'alamat' => 'required',
-		'nama_ayah' => 'required',
-		'nama_ibu' => 'required',
+		'alamat' => 'nullable',
+		'nama_ayah' => 'nullable',
+		'nama_ibu' => 'nullable',
 		'nama_wali' => 'nullable',
 		'hubungan_wali' => 'nullable',
-		'nomor_hp_wali' => 'required|numeric',
+		'nomor_hp_wali' => 'nullable|numeric',
 	]);
 
 	$payload = $validated + $request->only(['jurusan_id']);
 	$payload['password'] = bcrypt($request->input('password', 'password'));
 	$payload['role'] = $payload['role'] ?? 'user';
 
-	User::create($payload);
+	$user = User::create($payload);
+
+	// Assign 'user' role to the student
+	$userRole = Role::where('nama_role', 'user')->first();
+	if ($userRole) {
+		$user->roles()->attach($userRole->id);
+	} else {
+		// Create the 'user' role if it doesn't exist
+		$userRole = Role::create([
+			'nama_role' => 'user',
+			'deskripsi' => 'Pengguna umum',
+			'is_multi' => false
+		]);
+		$user->roles()->attach($userRole->id);
+	}
 
 	return redirect()->route('siswa.index')->with('success','Siswa berhasil ditambahkan');
 }
@@ -109,14 +124,14 @@ public function update(Request $request, User $siswa)
 				}
 			},
 		],
-		'umur' => 'required|numeric',
+		'umur' => 'nullable|numeric',
 		'nomor_hp' => 'required|numeric|unique:users,nomor_hp,' . $siswa->id,
-		'alamat' => 'required',
-		'nama_ayah' => 'required',
-		'nama_ibu' => 'required',
+		'alamat' => 'nullable',
+		'nama_ayah' => 'nullable',
+		'nama_ibu' => 'nullable',
 		'nama_wali' => 'nullable',
 		'hubungan_wali' => 'nullable',
-		'nomor_hp_wali' => 'required|numeric',
+		'nomor_hp_wali' => 'nullable|numeric',
 	]);
 
 	$siswa->update($validated + $request->only(['jurusan_id']));

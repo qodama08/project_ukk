@@ -37,15 +37,23 @@
           </div>
 
           <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $siswa->email) }}" required>
+            @error('email')<span class="invalid-feedback">{{ $message }}</span>@enderror
+          </div>
+
+          <div class="mb-3">
             <label class="form-label">Kelas & Jurusan</label>
-            <select name="kelas_id" id="kelas_id" class="form-control @error('kelas_id') is-invalid @enderror" required>
+            <select name="kelas_id" id="kelas_id" class="form-control @error('kelas_id') is-invalid @enderror" onchange="updateHiddenFields()" required>
               <option value="">-- Pilih Kelas & Jurusan --</option>
               @foreach($kelasJurusanOptions as $opt)
-                <option value="{{ $opt->id }}" {{ old('kelas_id', $siswa->kelas_id) == $opt->id ? 'selected' : '' }}>{{ $opt->nama_kelas }}</option>
+                <option value="{{ $opt->id }}" data-jurusan="{{ $opt->jurusan?->id }}" {{ old('kelas_id', $siswa->kelas_id) == $opt->id ? 'selected' : '' }}>{{ $opt->nama_kelas }}</option>
               @endforeach
             </select>
             @error('kelas_id')<span class="invalid-feedback">{{ $message }}</span>@enderror
           </div>
+
+          <input type="hidden" name="jurusan_id" id="jurusan_id" value="{{ old('jurusan_id', $siswa->jurusan_id) }}">
 
           <div class="mb-3">
             <label class="form-label">Absen</label>
