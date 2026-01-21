@@ -41,10 +41,6 @@
           <div class="card-body">
             <table class="table table-borderless">
               <tr>
-                <td><strong>NISN</strong></td>
-                <td>{{ $siswa->nisn }}</td>
-              </tr>
-              <tr>
                 <td><strong>Siswa</strong></td>
                 <td>{{ $siswa->name }} | {{ $siswa->kelas->nama_kelas ?? '-' }} | {{ $siswa->absen ?? '-' }}</td>
               </tr>

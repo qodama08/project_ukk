@@ -16,7 +16,7 @@ use HasFactory, Notifiable;
 
 
 protected $fillable = [
-'nisn', 'name', 'email', 'password', 'role', 'kelas_id', 'jurusan_id', 'absen', 'umur', 'nomor_hp', 'alamat',
+'name', 'email', 'password', 'role', 'kelas_id', 'jurusan_id', 'absen', 'umur', 'nomor_hp', 'alamat',
 'nama_ayah', 'nama_ibu', 'nama_wali', 'hubungan_wali', 'nomor_hp_wali'
 ];
 

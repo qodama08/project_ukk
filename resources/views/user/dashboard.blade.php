@@ -1,7 +1,7 @@
 
 @php
 try {
-    $totalSiswa = class_exists('\App\Models\User') ? \App\Models\User::whereNotNull('nisn')->count() : 0;
+    $totalSiswa = class_exists('\App\Models\User') ? \App\Models\User::whereHas('roles', function($q) { $q->where('nama_role', 'user'); })->count() : 0;
     $totalGuruBK = 0;
     if (class_exists('\App\Models\User')) {
         $totalGuruBK = \App\Models\User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->count();

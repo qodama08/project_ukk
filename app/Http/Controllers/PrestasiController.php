@@ -27,7 +27,9 @@ class PrestasiController extends Controller
     public function create()
     {
         if (request()->wantsJson()) return response()->json(['message' => 'Use POST /prestasi to create']);
-        $siswa = User::with('kelas')->whereNotNull('nisn')->orderBy('name')->get();
+        $siswa = User::with('kelas')->whereHas('roles', function($q) {
+            $q->where('nama_role', 'user');
+        })->orderBy('name')->get();
         return view('prestasi.form', ['siswa' => $siswa]);
     }
 
@@ -77,7 +79,9 @@ class PrestasiController extends Controller
     public function edit(string $id)
     {
         $p = Prestasi::findOrFail($id);
-        $siswa = User::with('kelas')->whereNotNull('nisn')->orderBy('name')->get();
+        $siswa = User::with('kelas')->whereHas('roles', function($q) {
+            $q->where('nama_role', 'user');
+        })->orderBy('name')->get();
         return view('prestasi.form', ['prestasi' => $p, 'siswa' => $siswa]);
     }
 

@@ -30,12 +30,6 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">NISN</label>
-            <input type="number" name="nisn" class="form-control @error('nisn') is-invalid @enderror" value="{{ old('nisn') }}" required>
-            @error('nisn')<span class="invalid-feedback">{{ $message }}</span>@enderror
-          </div>
-
-          <div class="mb-3">
             <label class="form-label">Nama Lengkap</label>
             <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
             @error('name')<span class="invalid-feedback">{{ $message }}</span>@enderror

@@ -13,9 +13,11 @@ class SiswaController extends Controller
 public function index()
 {
 
-	// Only show real siswa (users with nisn - admin/system users have no nisn)
+	// Only show real siswa (users with 'user' role - admin/system users have different roles)
 	$siswa = User::with(['kelas','jurusan'])
-		->whereNotNull('nisn')
+		->whereHas('roles', function($q) {
+			$q->where('nama_role', 'user');
+		})
 		->paginate(15);
 	return view('user.siswa.index', compact('siswa'));
 }
@@ -31,7 +33,6 @@ public function create()
 public function store(Request $request)
 {
 	$validated = $request->validate([
-		'nisn' => 'required|numeric|unique:users,nisn',
 		'name' => 'required',
 		'email' => 'required|email|unique:users,email',
 		'kelas_id' => 'required',
@@ -41,7 +42,9 @@ public function store(Request $request)
 			function ($attribute, $value, $fail) use ($request) {
 				$exists = User::where('kelas_id', $request->kelas_id)
 					->where('absen', $value)
-					->whereNotNull('nisn')
+					->whereHas('roles', function($q) {
+						$q->where('nama_role', 'user');
+					})
 					->exists();
 				if ($exists) {
 					$fail('Nomor absen ' . $value . ' sudah ada di kelas ini.');
@@ -76,7 +79,9 @@ public function show(User $siswa)
 public function edit(User $siswa)
 {
 	$kelasJurusanOptions = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('nama_kelas')->get();
-	$daftarSiswa = User::with('kelas')->whereNotNull('nisn')->get();
+	$daftarSiswa = User::with('kelas')->whereHas('roles', function($q) {
+		$q->where('nama_role', 'user');
+	})->get();
 	
 	return view('user.siswa.edit', compact('siswa','kelasJurusanOptions','daftarSiswa'));
 }
@@ -85,7 +90,6 @@ public function edit(User $siswa)
 public function update(Request $request, User $siswa)
 {
 	$validated = $request->validate([
-		'nisn' => 'required|numeric|unique:users,nisn,' . $siswa->id,
 		'name' => 'required',
 		'email' => 'required|email|unique:users,email,' . $siswa->id,
 		'kelas_id' => 'required',
@@ -96,7 +100,9 @@ public function update(Request $request, User $siswa)
 				$exists = User::where('kelas_id', $request->kelas_id)
 					->where('absen', $value)
 					->where('id', '!=', $siswa->id)
-					->whereNotNull('nisn')
+					->whereHas('roles', function($q) {
+						$q->where('nama_role', 'user');
+					})
 					->exists();
 				if ($exists) {
 					$fail('Nomor absen ' . $value . ' sudah ada di kelas ini.');
