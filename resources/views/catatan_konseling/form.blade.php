@@ -45,11 +45,6 @@
         <textarea name="hasil" class="form-control @error('hasil') is-invalid @enderror" required>{{ old('hasil', $note->hasil ?? '') }}</textarea>
         @error('hasil')<span class="invalid-feedback">{{ $message }}</span>@enderror
       </div>
-      <div class="mb-3">
-        <label class="form-label">Tindak Lanjut</label>
-        <textarea name="tindak_lanjut" class="form-control @error('tindak_lanjut') is-invalid @enderror" required>{{ old('tindak_lanjut', $note->tindak_lanjut ?? '') }}</textarea>
-        @error('tindak_lanjut')<span class="invalid-feedback">{{ $message }}</span>@enderror
-      </div>
       <button class="btn btn-primary">Simpan</button>
       <a href="/catatan_konseling" class="btn btn-secondary">Batal</a>
     </form>

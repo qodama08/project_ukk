@@ -71,25 +71,6 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Tindak Lanjut</label>
-        <textarea name="tindak_lanjut" class="form-control <?php $__errorArgs = ['tindak_lanjut'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" required><?php echo e(old('tindak_lanjut', $note->tindak_lanjut ?? '')); ?></textarea>
-        <?php $__errorArgs = ['tindak_lanjut'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><span class="invalid-feedback"><?php echo e($message); ?></span><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-      </div>
       <button class="btn btn-primary">Simpan</button>
       <a href="/catatan_konseling" class="btn btn-secondary">Batal</a>
     </form>
@@ -107,4 +88,4 @@ window.onload = loadJadwalDetails;
 </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\bk_ukk\resources\views/catatan_konseling/form.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\PC_\bk_ukk\resources\views/catatan_konseling/form.blade.php ENDPATH**/ ?>

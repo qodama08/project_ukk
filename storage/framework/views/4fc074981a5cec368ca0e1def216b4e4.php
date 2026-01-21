@@ -1,1 +1,0 @@
-<?php /**PATH C:\xampp\htdocs\bk_ukk\resources\views/auth/sso.blade.php ENDPATH**/ ?>
