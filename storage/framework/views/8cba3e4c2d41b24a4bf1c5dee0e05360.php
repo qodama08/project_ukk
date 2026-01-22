@@ -63,6 +63,12 @@
               <label class="form-label">Status</label>
               <span class="badge bg-warning" style="padding: 8px 12px; font-size: 14px;"><?php echo e(ucfirst($jadwal->status)); ?></span>
             </div>
+            <?php if($jadwal->status == 'batal' && $jadwal->alasan_batal): ?>
+            <div class="mb-3">
+              <label class="form-label">Alasan Pembatalan</label>
+              <textarea class="form-control" readonly rows="3"><?php echo e($jadwal->alasan_batal); ?></textarea>
+            </div>
+            <?php endif; ?>
           </div>
         </div>
         <a href="<?php echo e(route('jadwal_konseling.index')); ?>" class="btn btn-secondary">Kembali</a>
@@ -263,6 +269,12 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
               </div>
+              <?php if(isset($jadwal) && $jadwal->status == 'batal' && $jadwal->alasan_batal): ?>
+              <div class="mb-3">
+                <label class="form-label">Alasan Pembatalan</label>
+                <textarea class="form-control" readonly rows="3"><?php echo e($jadwal->alasan_batal); ?></textarea>
+              </div>
+              <?php endif; ?>
             <?php endif; ?>
           </div>
         </div>

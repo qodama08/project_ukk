@@ -60,14 +60,22 @@ class CatatanKonselingController extends Controller
 
         $jadwal = JadwalKonseling::findOrFail($data['jadwal_id']);
 
+        // Prevent creating catatan if jadwal is cancelled
+        if ($jadwal->status === 'batal') {
+            if (request()->wantsJson()) return response()->json(['message' => 'Tidak dapat membuat catatan untuk jadwal yang sudah dibatalkan'], 400);
+            return redirect()->back()->withErrors(['jadwal_id' => 'Tidak dapat membuat catatan untuk jadwal yang sudah dibatalkan']);
+        }
+
         $data['siswa_id'] = $jadwal->siswa_id;
         $data['guru_bk_id'] = $data['guru_bk_id'] ?? (Auth::check() ? Auth::id() : $jadwal->guru_bk_id);
         $data['created_at'] = now();
 
         $note = CatatanKonseling::create($data);
 
-        // mark jadwal as selesai
-        $jadwal->update(['status' => 'selesai']);
+        // mark jadwal as selesai only if not already cancelled
+        if ($jadwal->status !== 'batal') {
+            $jadwal->update(['status' => 'selesai']);
+        }
 
         if (request()->wantsJson()) return response()->json(['message' => 'Catatan dikirim', 'data' => $note],201);
         return redirect()->route('catatan_konseling.index')->with('success','Catatan dibuat');
@@ -142,11 +150,17 @@ class CatatanKonselingController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // Prevent approving if jadwal is cancelled
+        if ($note->jadwal && $note->jadwal->status === 'batal') {
+            if (request()->wantsJson()) return response()->json(['message' => 'Tidak dapat menyetujui catatan untuk jadwal yang sudah dibatalkan'], 400);
+            return redirect()->back()->withErrors(['error' => 'Tidak dapat menyetujui catatan untuk jadwal yang sudah dibatalkan']);
+        }
+
         $note->status = 'setuju';
         $note->save();
 
-        // also mark jadwal as selesai
-        if ($note->jadwal) {
+        // also mark jadwal as selesai only if not already cancelled
+        if ($note->jadwal && $note->jadwal->status !== 'batal') {
             try { $note->jadwal->update(['status' => 'selesai']); } catch (\Exception $e) {}
         }
 
