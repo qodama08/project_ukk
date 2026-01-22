@@ -1,1 +1,0 @@
-<?php /**PATH C:\projek_bk\resources\views/auth/sso.blade.php ENDPATH**/ ?>

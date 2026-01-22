@@ -136,4 +136,4 @@
     <!-- [Body] end -->
 
 </html>
-<?php /**PATH C:\projek_bk\resources\views/layouts/auth.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\PC_\bk_ukk2526\resources\views/layouts/auth.blade.php ENDPATH**/ ?>
