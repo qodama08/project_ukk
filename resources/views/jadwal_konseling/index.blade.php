@@ -29,7 +29,7 @@
 
     <table class="table table-striped">
       <thead>
-        <tr><th>#</th><th>Nama Siswa</th><th>Kelas</th><th>Absen</th><th>Guru</th><th>Tanggal</th><th>Jam</th><th>Status</th>@if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())<th>Actions</th>@endif</tr>
+        <tr><th>#</th><th>Nama Siswa</th><th>Kelas</th><th>Absen</th><th>Guru</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Alasan Batal</th>@if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())<th>Actions</th>@endif</tr>
       </thead>
       <tbody>
       @foreach($jadwals as $j)
@@ -57,6 +57,13 @@
               $statusLabel = $statusLabels[$j->status] ?? ucwords(str_replace('_',' ',$j->status));
             @endphp
             <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
+          </td>
+          <td>
+            @if($j->status == 'batal' && $j->alasan_batal)
+              <span data-bs-toggle="tooltip" title="{{ $j->alasan_batal }}">{{ strlen($j->alasan_batal) > 20 ? substr($j->alasan_batal, 0, 20) . '...' : $j->alasan_batal }}</span>
+            @else
+              -
+            @endif
           </td>
           @if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())
           <td>
@@ -111,4 +118,10 @@
       </tbody>
     </table>
 </div>
+
+<script>
+$(document).ready(function(){
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
+</script>
 @endsection

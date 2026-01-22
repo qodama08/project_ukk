@@ -65,6 +65,12 @@
               <label class="form-label">Status</label>
               <span class="badge bg-warning" style="padding: 8px 12px; font-size: 14px;">{{ ucfirst($jadwal->status) }}</span>
             </div>
+            @if($jadwal->status == 'batal' && $jadwal->alasan_batal)
+            <div class="mb-3">
+              <label class="form-label">Alasan Pembatalan</label>
+              <textarea class="form-control" readonly rows="3">{{ $jadwal->alasan_batal }}</textarea>
+            </div>
+            @endif
           </div>
         </div>
         <a href="{{ route('jadwal_konseling.index') }}" class="btn btn-secondary">Kembali</a>
@@ -152,6 +158,12 @@
                 </select>
                 @error('status')<span class="invalid-feedback">{{ $message }}</span>@enderror
               </div>
+              @if(isset($jadwal) && $jadwal->status == 'batal' && $jadwal->alasan_batal)
+              <div class="mb-3">
+                <label class="form-label">Alasan Pembatalan</label>
+                <textarea class="form-control" readonly rows="3">{{ $jadwal->alasan_batal }}</textarea>
+              </div>
+              @endif
             @endif
           </div>
         </div>

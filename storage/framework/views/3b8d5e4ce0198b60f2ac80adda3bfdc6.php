@@ -27,7 +27,7 @@
 
     <table class="table table-striped">
       <thead>
-        <tr><th>#</th><th>Nama Siswa</th><th>Kelas</th><th>Absen</th><th>Guru</th><th>Tanggal</th><th>Jam</th><th>Status</th><?php if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists()): ?><th>Actions</th><?php endif; ?></tr>
+        <tr><th>#</th><th>Nama Siswa</th><th>Kelas</th><th>Absen</th><th>Guru</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Alasan Batal</th><?php if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists()): ?><th>Actions</th><?php endif; ?></tr>
       </thead>
       <tbody>
       <?php $__currentLoopData = $jadwals; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $j): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -55,6 +55,13 @@
               $statusLabel = $statusLabels[$j->status] ?? ucwords(str_replace('_',' ',$j->status));
             ?>
             <span class="badge <?php echo e($statusClass); ?>"><?php echo e($statusLabel); ?></span>
+          </td>
+          <td>
+            <?php if($j->status == 'batal' && $j->alasan_batal): ?>
+              <span data-bs-toggle="tooltip" title="<?php echo e($j->alasan_batal); ?>"><?php echo e(strlen($j->alasan_batal) > 20 ? substr($j->alasan_batal, 0, 20) . '...' : $j->alasan_batal); ?></span>
+            <?php else: ?>
+              -
+            <?php endif; ?>
           </td>
           <?php if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists()): ?>
           <td>
@@ -109,6 +116,12 @@
       </tbody>
     </table>
 </div>
+
+<script>
+$(document).ready(function(){
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\PC_\bk_ukk2526\resources\views/jadwal_konseling/index.blade.php ENDPATH**/ ?>
