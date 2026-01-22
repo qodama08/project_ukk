@@ -14,10 +14,6 @@ Kami ingin memberitahukan bahwa poin pelanggaran Anda telah mencapai batas maksi
 
 Anda telah mencapai batas maksimal poin pelanggaran. Mohon segera menemui guru BK untuk penanganan lebih lanjut.
 
-@component('mail::button', ['url' => url('/dashboard')])
-Lihat Dashboard
-@endcomponent
-
 Terima kasih,<br>
 {{ config('app.name') }}
 @endcomponent
