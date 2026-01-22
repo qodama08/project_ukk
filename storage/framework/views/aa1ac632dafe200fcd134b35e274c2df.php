@@ -40,6 +40,20 @@
                     <input type="password" class="form-control" required name="password_confirmation"
                         placeholder="Password Confirmation">
                 </div>
+                <div class="form-group mb-3 mt-3">
+                    <?php echo NoCaptcha::display(['data-theme' => 'light']); ?>
+
+                    <?php $__errorArgs = ['g-recaptcha-response'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="text-danger small d-block mt-2"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                </div>
                 <p class="mt-4 text-sm text-muted">By Signing up, you agree to our <a href="#" class="text-primary">
                         Terms
                         of Service </a> and <a href="#" class="text-primary"> Privacy Policy</a></p>
@@ -54,4 +68,4 @@
     </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.auth', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\PC_\bk_ukk\resources\views/auth/register.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.auth', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\projek_bk\resources\views/auth/register.blade.php ENDPATH**/ ?>

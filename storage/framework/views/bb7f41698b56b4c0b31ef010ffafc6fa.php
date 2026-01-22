@@ -247,4 +247,4 @@
     <!-- [Body] end -->
 
 </html>
-<?php /**PATH C:\Users\PC_\bk_ukk\resources\views/layouts/dashboard.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\projek_bk\resources\views/layouts/dashboard.blade.php ENDPATH**/ ?>

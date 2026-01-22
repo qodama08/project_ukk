@@ -124,6 +124,7 @@ Route::middleware('auth')->group(function () {
 
 // Admin only - dapat ubah status
 Route::post('jadwal_konseling/{id}/set_status', [JadwalKonselingController::class, 'setStatus'])->middleware('auth')->name('jadwal_konseling.set_status');
+Route::post('jadwal_konseling/{id}/cancel', [JadwalKonselingController::class, 'cancelSchedule'])->middleware('auth')->name('jadwal_konseling.cancel');
 
 Route::get('/', function () {
     // Jika user sudah login

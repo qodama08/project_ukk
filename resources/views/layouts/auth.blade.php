@@ -34,6 +34,9 @@
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
         <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
 
+        <!-- reCAPTCHA -->
+        {!! NoCaptcha::renderJs() !!}
+
     </head>
     <!-- [Head] end -->
     <!-- [Body] Start -->

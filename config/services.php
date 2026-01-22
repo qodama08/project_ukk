@@ -58,5 +58,4 @@ return [
         'redirect' => env('DISCORD_REDIRECT_URI'),
     ],
 
-
 ];

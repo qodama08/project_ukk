@@ -34,6 +34,10 @@
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style.css')); ?>" id="main-style-link">
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style-preset.css')); ?>">
 
+        <!-- reCAPTCHA -->
+        <?php echo NoCaptcha::renderJs(); ?>
+
+
     </head>
     <!-- [Head] end -->
     <!-- [Body] Start -->
@@ -132,4 +136,4 @@
     <!-- [Body] end -->
 
 </html>
-<?php /**PATH C:\Users\PC_\bk_ukk\resources\views/layouts/auth.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\projek_bk\resources\views/layouts/auth.blade.php ENDPATH**/ ?>

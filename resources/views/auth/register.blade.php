@@ -42,6 +42,12 @@
                     <input type="password" class="form-control" required name="password_confirmation"
                         placeholder="Password Confirmation">
                 </div>
+                <div class="form-group mb-3 mt-3">
+                    {!! NoCaptcha::display(['data-theme' => 'light']) !!}
+                    @error('g-recaptcha-response')
+                        <span class="text-danger small d-block mt-2">{{ $message }}</span>
+                    @enderror
+                </div>
                 <p class="mt-4 text-sm text-muted">By Signing up, you agree to our <a href="#" class="text-primary">
                         Terms
                         of Service </a> and <a href="#" class="text-primary"> Privacy Policy</a></p>

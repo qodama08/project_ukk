@@ -208,4 +208,38 @@ class JadwalKonselingController extends Controller
 
         return redirect()->route('jadwal_konseling.index')->with('success', 'Status diperbarui');
     }
+
+    /**
+     * Cancel schedule (admin action with reason)
+     */
+    public function cancelSchedule(Request $request, $id)
+    {
+        // Verify user is admin
+        $user = auth()->user();
+        if (!$user || $user->role !== 'admin') {
+            abort(403, 'Unauthorized - only admin can cancel schedule');
+        }
+
+        $jadwal = JadwalKonseling::findOrFail($id);
+        $data = $request->validate([
+            'alasan_batal' => 'required|string|min:5|max:500'
+        ]);
+
+        $jadwal->status = 'batal';
+        $jadwal->alasan_batal = $data['alasan_batal'];
+        $jadwal->save();
+
+        // Mark related notifications as read
+        try {
+            $notifs = \App\Models\Notifikasi::whereRaw("JSON_EXTRACT(data, '$.jadwal_id') = ?", [$jadwal->id])->get();
+            foreach ($notifs as $n) {
+                $n->is_read = true;
+                $n->save();
+            }
+        } catch (\Exception $e) {
+            // ignore notification update failures
+        }
+
+        return redirect()->route('jadwal_konseling.index')->with('success', 'Jadwal dibatalkan');
+    }
 }

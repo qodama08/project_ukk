@@ -132,4 +132,4 @@ try {
         transition: all 0.3s ease;
     }
 </style>
-<?php /**PATH C:\Users\PC_\bk_ukk\resources\views/user/dashboard.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\projek_bk\resources\views/admin/dashboard.blade.php ENDPATH**/ ?>

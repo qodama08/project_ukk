@@ -35,6 +35,7 @@
           <th>Absen</th>
           <th>Nama Pelanggaran</th>
           <th>Poin</th>
+          <th>Total Poin</th>
           <th>Tingkat</th>
           @if($isAdmin)
             <th>Aksi</th>
@@ -43,6 +44,10 @@
       </thead>
       <tbody>
       @forelse($items as $it)
+        @php
+          $totalPoin = \App\Models\Pelanggaran::where('siswa_id', $it->siswa_id)->sum('poin');
+          $siswaProgressClass = $totalPoin >= 100 ? 'bg-danger text-white' : ($totalPoin >= 80 ? 'bg-warning' : 'bg-light');
+        @endphp
         <tr>
           <td>{{ $loop->iteration }}</td>
           <td><strong>{{ $it->nama_siswa ?? ($it->user->name ?? '-') }}</strong></td>
@@ -50,6 +55,9 @@
           <td>{{ $it->absen ?? '-' }}</td>
           <td>{{ $it->nama_pelanggaran }}</td>
           <td>{{ $it->poin }}</td>
+          <td>
+            <span class="badge {{ $siswaProgressClass }}">{{ $totalPoin }}/100</span>
+          </td>
           <td>
             @if($it->tingkat_warna == 'hijau')
               <span class="badge bg-success">Hijau</span>

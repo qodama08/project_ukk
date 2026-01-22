@@ -60,17 +60,53 @@
           </td>
           @if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())
           <td>
-            {{-- Admin only: can set status to selesai when pending or terjadwal --}}
-            @if($j->status == 'pending' || $j->status == 'terjadwal')
-                <form action="{{ url('/jadwal_konseling/'.$j->id.'/set_status') }}" method="POST" style="display:inline-block">
-                  @csrf
-                  <input type="hidden" name="status" value="selesai">
-                  <button class="btn btn-sm btn-success">Set Selesai</button>
-                </form>
-            @endif
+            <div class="btn-group" role="group">
+              {{-- Admin only: can set status to selesai when pending or terjadwal --}}
+              @if($j->status == 'pending' || $j->status == 'terjadwal')
+                  <form action="{{ url('/jadwal_konseling/'.$j->id.'/set_status') }}" method="POST" style="display:inline-block">
+                    @csrf
+                    <input type="hidden" name="status" value="selesai">
+                    <button class="btn btn-sm btn-success" title="Tandai jadwal sebagai selesai">Set Selesai</button>
+                  </form>
+                  <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal{{ $j->id }}" title="Batalkan jadwal dengan alasan">Batal</button>
+              @endif
+              @if($j->status == 'batal' && $j->alasan_batal)
+                  <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="{{ $j->alasan_batal }}">Info Batal</button>
+              @endif
+            </div>
           </td>
           @endif
         </tr>
+
+        {{-- Modal untuk membatalkan jadwal --}}
+        @if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())
+        <div class="modal fade" id="cancelModal{{ $j->id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ $j->id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel{{ $j->id }}">Batalkan Jadwal Konseling</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="{{ route('jadwal_konseling.cancel', $j->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                  <p><strong>Siswa:</strong> {{ $j->nama_siswa ?? $j->siswa->name ?? '-' }}</p>
+                  <p><strong>Tanggal:</strong> {{ $j->tanggal }} {{ $j->jam }}</p>
+                  <div class="mb-3">
+                    <label for="alasan{{ $j->id }}" class="form-label">Alasan Pembatalan <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="alasan{{ $j->id }}" name="alasan_batal" rows="3" placeholder="Masukkan alasan pembatalan jadwal konseling..." required></textarea>
+                    <small class="form-text text-muted">Minimal 5 karakter, maksimal 500 karakter</small>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                  <button type="submit" class="btn btn-danger">Batalkan Jadwal</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        @endif
       @endforeach
       </tbody>
     </table>

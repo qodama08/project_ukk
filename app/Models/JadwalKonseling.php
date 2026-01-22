@@ -11,7 +11,7 @@ class JadwalKonseling extends Model
 {
 use HasFactory;
 protected $table = 'jadwal_konseling';
-protected $fillable = ['siswa_id','nama_siswa','kelas','absen','guru_bk_id','tanggal','jam','tempat','status'];
+protected $fillable = ['siswa_id','nama_siswa','kelas','absen','guru_bk_id','tanggal','jam','tempat','status','alasan_batal'];
 
 
 public function siswa() { return $this->belongsTo(User::class,'siswa_id'); }
