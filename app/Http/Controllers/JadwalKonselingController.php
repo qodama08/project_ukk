@@ -18,11 +18,7 @@ class JadwalKonselingController extends Controller
         $user = Auth::user();
         $query = JadwalKonseling::with(['siswa','guru','catatan'])->orderBy('tanggal','desc');
 
-        // Jika user (siswa), hanya tampilkan jadwal milik mereka
-        if ($user && $user->role !== 'admin') {
-            $query->where('siswa_id', $user->id);
-        }
-        // Jika admin, tampilkan semua jadwal konseling
+        // Semua user bisa melihat semua jadwal konseling
 
         $jadwals = $query->paginate(20);
         if (request()->wantsJson()) return response()->json($jadwals);
