@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\JadwalKonseling;
 use App\Models\User;
+use App\Models\Kelas;
 use App\Models\CatatanKonseling;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,7 +38,8 @@ class JadwalKonselingController extends Controller
         $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
         $siswa = $isAdmin ? User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get() : [];
         $gurus = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->orderBy('name')->get();
-        return view('jadwal_konseling.form', ['siswa' => $siswa, 'gurus' => $gurus, 'isAdmin' => $isAdmin]);
+        $kelasJurusanOptions = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('nama_kelas')->get();
+        return view('jadwal_konseling.form', ['siswa' => $siswa, 'gurus' => $gurus, 'kelasJurusanOptions' => $kelasJurusanOptions, 'isAdmin' => $isAdmin]);
     }
 
     /**
@@ -45,22 +47,54 @@ class JadwalKonselingController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'siswa_id' => 'nullable|exists:users,id',
-            'nama_siswa' => 'required|string|max:255',
-            'kelas' => 'required|string|max:50',
-            'absen' => 'required|string|max:10',
-            'tanggal' => 'required|date',
-            'jam' => 'required',
-            'tempat' => 'nullable|string',
-            'status' => 'nullable|in:pending,terjadwal,selesai,batal',
-            'guru_bk_id' => 'required|exists:users,id',
-        ]);
+        $user = Auth::user();
+        $isAdmin = $user && ($user->role == 'admin' || $user->roles()->where('nama_role','admin')->exists());
 
-        // default siswa_id to authenticated user when available
-        $data['siswa_id'] = $data['siswa_id'] ?? (Auth::check() ? Auth::id() : null);
-        // Default status when a student submits is 'pending' unless explicitly set
-        $data['status'] = $data['status'] ?? 'pending';
+        // Different validation rules for admin vs student
+        if ($isAdmin) {
+            $data = $request->validate([
+                'siswa_id' => 'required|exists:users,id',
+                'tanggal' => 'required|date',
+                'jam' => 'required',
+                'status' => 'nullable|in:pending,terjadwal,selesai,batal',
+                'guru_bk_id' => 'required|exists:users,id',
+            ]);
+            
+            // Get siswa data for nama, kelas, absen
+            $siswa = User::findOrFail($data['siswa_id']);
+            $data['nama_siswa'] = $siswa->name;
+            $data['kelas'] = $siswa->kelas->nama_kelas ?? null;
+            $data['absen'] = $siswa->absen;
+            $data['status'] = $data['status'] ?? 'pending';
+        } else {
+            // Student: nama, kelas, dan absen harus sama dengan data login mereka
+            $data = $request->validate([
+                'nama_siswa' => 'required|string|max:255',
+                'kelas' => 'required|string|max:50',
+                'absen' => 'required|string|max:10',
+                'tanggal' => 'required|date',
+                'jam' => 'required',
+                'guru_bk_id' => 'required|exists:users,id',
+            ]);
+
+            // Validate that nama_siswa matches authenticated user
+            if ($data['nama_siswa'] !== $user->name) {
+                return back()->withInput()->withErrors(['nama_siswa' => 'Nama siswa harus sesuai dengan data login Anda']);
+            }
+
+            // Validate that kelas matches authenticated user's kelas
+            if ($data['kelas'] !== ($user->kelas->nama_kelas ?? '')) {
+                return back()->withInput()->withErrors(['kelas' => 'Kelas harus sesuai dengan data login Anda']);
+            }
+
+            // Validate that absen matches authenticated user's absen
+            if ($data['absen'] != $user->absen) {
+                return back()->withInput()->withErrors(['absen' => 'Nomor absen harus sesuai dengan data login Anda']);
+            }
+
+            $data['siswa_id'] = $user->id;
+            $data['status'] = 'pending';
+        }
 
         // Ensure tanggal is not before today
         if (isset($data['tanggal']) && $data['tanggal'] < now()->format('Y-m-d')) {
@@ -100,11 +134,14 @@ class JadwalKonselingController extends Controller
     {
         $jadwal = JadwalKonseling::with(['siswa','guru'])->findOrFail($id);
         if (request()->wantsJson()) return response()->json($jadwal);
+        
         $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
-        $siswa = $isAdmin ? User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get() : [];
+        $siswa = $isAdmin ? User::with('kelas')->whereHas('roles', function($q){ $q->where('nama_role','user'); })->whereNotNull('kelas_id')->orderBy('name')->get() : [];
         $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','admin'); })->orderBy('name')->get();
+        $kelasJurusanOptions = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('nama_kelas')->get();
+        
         // Show form view that displays details and allows status update (form will be read-only except for admin status field)
-        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'siswa' => $siswa, 'gurus' => $gurus]);
+        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'siswa' => $siswa, 'gurus' => $gurus, 'kelasJurusanOptions' => $kelasJurusanOptions, 'isAdmin' => $isAdmin]);
     }
 
     /**
@@ -114,15 +151,18 @@ class JadwalKonselingController extends Controller
     {
         $jadwal = JadwalKonseling::with(['siswa','guru'])->findOrFail($id);
         if (request()->wantsJson()) return response()->json($jadwal);
+        
         $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
-        $siswa = $isAdmin ? User::with('kelas')->whereDoesntHave('roles')->orWhereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get() : [];
-        $gurus = User::where('role', 'admin')->where('email', '!=', 'admin@gmail.com')->orderBy('name')->get();
+        $siswa = $isAdmin ? User::with('kelas')->whereHas('roles', function($q){ $q->where('nama_role','user'); })->whereNotNull('kelas_id')->orderBy('name')->get() : [];
+        $gurus = User::whereHas('roles', function($q){ $q->where('nama_role','admin'); })->orderBy('name')->get();
+        $kelasJurusanOptions = Kelas::with('jurusan')->orderBy('tingkat')->orderBy('nama_kelas')->get();
+        
         // only the owner (siswa who created the jadwal) may edit
         if (!Auth::check() || Auth::id() != $jadwal->siswa_id) {
             abort(403, 'Unauthorized - only owner can edit jadwal');
         }
 
-        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'siswa' => $siswa, 'gurus' => $gurus, 'isAdmin' => $isAdmin]);
+        return view('jadwal_konseling.form', ['jadwal' => $jadwal, 'siswa' => $siswa, 'gurus' => $gurus, 'kelasJurusanOptions' => $kelasJurusanOptions, 'isAdmin' => $isAdmin]);
     }
 
     /**
@@ -179,7 +219,7 @@ class JadwalKonselingController extends Controller
     {
         // Verify user is admin
         $user = auth()->user();
-        if (!$user || $user->role !== 'admin') {
+        if (!$user || !($user->role === 'admin' || $user->roles()->where('nama_role','admin')->exists())) {
             abort(403, 'Unauthorized - only admin can change status');
         }
 
@@ -212,7 +252,7 @@ class JadwalKonselingController extends Controller
     {
         // Verify user is admin
         $user = auth()->user();
-        if (!$user || $user->role !== 'admin') {
+        if (!$user || !($user->role === 'admin' || $user->roles()->where('nama_role','admin')->exists())) {
             abort(403, 'Unauthorized - only admin can cancel schedule');
         }
 

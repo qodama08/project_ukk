@@ -69,25 +69,39 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         // Validate the request data
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'kelas_id' => 'required|exists:kelas,id',
+            'absen' => 'required|integer|min:1|max:40',
             'g-recaptcha-response' => 'required|captcha',
         ]);
+
+        // Check if absen already exists in the selected kelas
+        $existingAbsen = User::where('kelas_id', $validated['kelas_id'])
+                            ->where('absen', $validated['absen'])
+                            ->exists();
+        
+        if ($existingAbsen) {
+            return redirect()->back()->withInput()->withErrors(['absen' => 'Nomor absen ' . $validated['absen'] . ' sudah digunakan di kelas ini. Pilih nomor absen lain.']);
+        }
 
         // Create the user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'role' => $request->role ?? 'user',
+            'role' => 'user',
+            'kelas_id' => $validated['kelas_id'],
+            'absen' => $validated['absen'],
         ]);
 
-
-        // Set session untuk email yang akan diverifikasi
-        // session(['verify_email' => $user->email]);
-        // return $this->sendOtp($user, true); // true: from register
+        // Assign 'user' role to the newly created user
+        $userRole = \App\Models\Role::where('nama_role', 'user')->first();
+        if ($userRole) {
+            $user->roles()->attach($userRole->id);
+        }
 
         // Set session with the registered email
         $request->session()->flash('registered_email', $request->email);

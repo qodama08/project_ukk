@@ -21,6 +21,13 @@
 
     <h2 class="mb-4">{{ isset($jadwal) ? (request()->routeIs('jadwal_konseling.show') ? 'Detail' : 'Edit') : 'Buat' }} Jadwal Konseling</h2>
 
+    @if ($errors->has('data_incomplete'))
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>❌ Gagal!</strong> {{ $errors->first('data_incomplete') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    @endif
+
     @php
       $isReadOnly = isset($jadwal) && request()->routeIs('jadwal_konseling.show');
       $isAdmin = auth()->check() && (auth()->user()->role == 'admin' || auth()->user()->roles()->where('nama_role','admin')->exists());
@@ -87,24 +94,21 @@
             @if($isSiswa)
               <div class="mb-3">
                 <label class="form-label">Nama Siswa</label>
-                <input type="text" name="nama_siswa" class="form-control @error('nama_siswa') is-invalid @enderror" value="{{ old('nama_siswa', $jadwal->nama_siswa ?? auth()->user()->name) }}" required>
-                @error('nama_siswa')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly style="background-color: #e9ecef;">
+                <input type="hidden" name="nama_siswa" value="{{ auth()->user()->name }}">
+                <small class="text-muted">Auto-fill dari data login Anda</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Kelas</label>
-                <select name="kelas" class="form-control @error('kelas') is-invalid @enderror" required>
-                  <option value="">-- Pilih Kelas --</option>
-                  <option value="XII TKR 2" {{ old('kelas', $jadwal->kelas ?? (auth()->user()->kelas?->nama_kelas ?? '')) == 'XII TKR 2' ? 'selected' : '' }}>XII TKR 2</option>
-                  <option value="XII RPL" {{ old('kelas', $jadwal->kelas ?? (auth()->user()->kelas?->nama_kelas ?? '')) == 'XII RPL' ? 'selected' : '' }}>XII RPL</option>
-                  <option value="XII TPM 4" {{ old('kelas', $jadwal->kelas ?? (auth()->user()->kelas?->nama_kelas ?? '')) == 'XII TPM 4' ? 'selected' : '' }}>XII TPM 4</option>
-                  <option value="XII TITL" {{ old('kelas', $jadwal->kelas ?? (auth()->user()->kelas?->nama_kelas ?? '')) == 'XII TITL' ? 'selected' : '' }}>XII TITL</option>
-                </select>
-                @error('kelas')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                <label class="form-label">Kelas & Jurusan</label>
+                <input type="text" class="form-control" value="{{ auth()->user()->kelas->nama_kelas ?? '-' }}" readonly style="background-color: #e9ecef;">
+                <input type="hidden" name="kelas" value="{{ auth()->user()->kelas->nama_kelas ?? '' }}">
+                <small class="text-muted">Auto-fill dari data login Anda</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Absen</label>
-                <input type="number" name="absen" class="form-control @error('absen') is-invalid @enderror" value="{{ old('absen', $jadwal->absen ?? auth()->user()->absen) }}" required>
-                @error('absen')<span class="invalid-feedback">{{ $message }}</span>@enderror
+                <label class="form-label">Nomor Absen</label>
+                <input type="text" class="form-control" value="{{ auth()->user()->absen ?? '-' }}" readonly style="background-color: #e9ecef;">
+                <input type="hidden" name="absen" value="{{ auth()->user()->absen ?? '' }}">
+                <small class="text-muted">Auto-fill dari data login Anda</small>
               </div>
             @else
               <!-- Admin: dropdown pilih siswa -->
@@ -175,5 +179,4 @@
       </form>
     @endif
 </div>
-
 @endsection

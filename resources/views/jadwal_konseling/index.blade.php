@@ -29,10 +29,24 @@
 
     <table class="table table-striped">
       <thead>
-        <tr><th>#</th><th>Nama Siswa</th><th>Kelas</th><th>Absen</th><th>Guru</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Alasan Batal</th>@if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())<th>Actions</th>@endif</tr>
+        <tr><th>#</th><th>Nama Siswa</th><th>Kelas</th><th>Absen</th><th>Guru</th><th>Tanggal</th><th>Jam</th><th>Status</th><th>Info Batal</th>@if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())<th>Actions</th>@endif</tr>
       </thead>
       <tbody>
       @foreach($jadwals as $j)
+        @php
+          $statusClass = 'bg-secondary';
+          if ($j->status == 'pending') $statusClass = 'bg-warning text-dark';
+          elseif ($j->status == 'terjadwal') $statusClass = 'bg-primary';
+          elseif ($j->status == 'selesai') $statusClass = 'bg-success';
+          elseif ($j->status == 'batal') $statusClass = 'bg-danger';
+          $statusLabels = [
+            'pending' => 'Menunggu',
+            'terjadwal' => 'Terjadwal',
+            'selesai' => 'Selesai',
+            'batal' => 'Batal'
+          ];
+          $statusLabel = $statusLabels[$j->status] ?? ucwords(str_replace('_',' ',$j->status));
+        @endphp
         <tr>
           <td>{{ $loop->iteration }}</td>
           <td>{{ $j->nama_siswa ?? $j->siswa->name ?? '-' }}</td>
@@ -42,27 +56,13 @@
           <td>{{ $j->tanggal }}</td>
           <td>{{ $j->jam }}</td>
           <td>
-            @php
-              $statusClass = 'bg-secondary';
-              if ($j->status == 'pending') $statusClass = 'bg-warning text-dark';
-              elseif ($j->status == 'terjadwal') $statusClass = 'bg-primary';
-              elseif ($j->status == 'selesai') $statusClass = 'bg-success';
-              elseif ($j->status == 'batal') $statusClass = 'bg-danger';
-              $statusLabels = [
-                'pending' => 'Menunggu',
-                'terjadwal' => 'Terjadwal',
-                'selesai' => 'Selesai',
-                'batal' => 'Batal'
-              ];
-              $statusLabel = $statusLabels[$j->status] ?? ucwords(str_replace('_',' ',$j->status));
-            @endphp
             <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
           </td>
           <td>
             @if($j->status == 'batal' && $j->alasan_batal)
-              <span data-bs-toggle="tooltip" title="{{ $j->alasan_batal }}">{{ strlen($j->alasan_batal) > 20 ? substr($j->alasan_batal, 0, 20) . '...' : $j->alasan_batal }}</span>
-            @else
-              -
+              <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#infoModal{{ $j->id }}" title="Lihat alasan pembatalan">Lihat Alasan</button>
+            @elseif($j->status != 'batal')
+              <span class="text-muted">-</span>
             @endif
           </td>
           @if(auth()->check() && auth()->user()->roles()->where('nama_role', 'admin')->exists())
@@ -76,9 +76,6 @@
                     <button class="btn btn-sm btn-success" title="Tandai jadwal sebagai selesai">Set Selesai</button>
                   </form>
                   <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal{{ $j->id }}" title="Batalkan jadwal dengan alasan">Batal</button>
-              @endif
-              @if($j->status == 'batal' && $j->alasan_batal)
-                  <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="{{ $j->alasan_batal }}">Info Batal</button>
               @endif
             </div>
           </td>
@@ -114,6 +111,33 @@
           </div>
         </div>
         @endif
+
+        {{-- Modal untuk melihat alasan pembatalan --}}
+        <div class="modal fade" id="infoModal{{ $j->id }}" tabindex="-1" aria-labelledby="infoModalLabel{{ $j->id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel{{ $j->id }}">Alasan Pembatalan Jadwal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p><strong>Siswa:</strong> {{ $j->nama_siswa ?? $j->siswa->name ?? '-' }}</p>
+                <p><strong>Tanggal:</strong> {{ $j->tanggal }} {{ $j->jam }}</p>
+                <div class="mb-3">
+                  <label class="form-label"><strong>Alasan Pembatalan:</strong></label>
+                  <div class="card">
+                    <div class="card-body">
+                      {{ $j->alasan_batal }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+              </div>
+            </div>
+          </div>
+        </div>
       @endforeach
       </tbody>
     </table>

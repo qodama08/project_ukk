@@ -51,9 +51,11 @@
                     <a href="{{ route('forgot_password.email_form') }}" class="text-secondary f-w-400">Forgot Password?</a>
                 </div>
                 <div class="form-group mb-3 mt-3">
-                    {!! NoCaptcha::display(['data-theme' => 'light']) !!}
+                    <div style="display: flex; justify-content: center;">
+                        {!! NoCaptcha::display(['data-theme' => 'light']) !!}
+                    </div>
                     @error('g-recaptcha-response')
-                        <span class="text-danger small d-block mt-2">{{ $message }}</span>
+                        <span class="text-danger small d-block mt-2 text-center">{{ $message }}</span>
                     @enderror
                 </div>                <div class="d-grid mt-4">
                     <button type="submit" class="btn btn-primary">Login</button>

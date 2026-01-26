@@ -1,0 +1,1 @@
+<?php /**PATH C:\Users\Lenovo\ukk2526\resources\views/auth/sso.blade.php ENDPATH**/ ?>

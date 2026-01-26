@@ -49,7 +49,7 @@
         </style>
     </head>
 
-    <body class="landing-page" style="overflow: hidden; height: 100vh;">
+    <body class="landing-page" style="overflow-x: hidden;">
         <!-- [ Main Content ] start -->
         <!-- [ Pre-loader ] start -->
         <div class="loader-bg">

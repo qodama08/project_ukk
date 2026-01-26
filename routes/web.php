@@ -11,7 +11,8 @@ use App\Http\Controllers\CatatanKonselingController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\LaporanMasalahController;
 
 use App\Http\Controllers\GuruBKController;
 use App\Http\Controllers\BkAiController;
@@ -126,6 +127,41 @@ Route::middleware('auth')->group(function () {
 Route::post('jadwal_konseling/{id}/set_status', [JadwalKonselingController::class, 'setStatus'])->middleware('auth')->name('jadwal_konseling.set_status');
 Route::post('jadwal_konseling/{id}/cancel', [JadwalKonselingController::class, 'cancelSchedule'])->middleware('auth')->name('jadwal_konseling.cancel');
 
+// Attendance Routes
+Route::middleware('auth')->group(function () {
+    Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('attendance/create', [AttendanceController::class, 'create'])->name('attendance.create');
+    Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::get('attendance/daily-report', [AttendanceController::class, 'dailyReport'])->name('attendance.daily_report');
+    Route::get('attendance/siswa-report/{siswaId}', [AttendanceController::class, 'siswaReport'])->name('attendance.siswa_report');
+    Route::get('attendance/{attendance}', [AttendanceController::class, 'show'])->name('attendance.show');
+    Route::get('attendance/{attendance}/edit', [AttendanceController::class, 'edit'])->name('attendance.edit');
+    Route::put('attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
+    Route::delete('attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
+});
+
+// Laporan Masalah Routes
+Route::middleware('auth')->group(function () {
+    Route::get('laporan_masalah', [LaporanMasalahController::class, 'index'])->name('laporan_masalah.index');
+    Route::get('laporan_masalah/create', [LaporanMasalahController::class, 'create'])->name('laporan_masalah.create');
+    Route::post('laporan_masalah', [LaporanMasalahController::class, 'store'])->name('laporan_masalah.store');
+    Route::get('laporan_masalah/{id}', [LaporanMasalahController::class, 'show'])->name('laporan_masalah.show');
+});
+
+// Guru Wali Kelas only - accept and forward laporan
+Route::middleware('auth')->group(function () {
+    Route::get('laporan_masalah/{id}/terima', [LaporanMasalahController::class, 'terima'])->name('laporan_masalah.terima');
+    Route::post('laporan_masalah/{id}/terima', [LaporanMasalahController::class, 'storeTerma'])->name('laporan_masalah.store_terima');
+    Route::get('laporan_masalah/{id}/teruskan', [LaporanMasalahController::class, 'teruskan'])->name('laporan_masalah.teruskan');
+    Route::post('laporan_masalah/{id}/teruskan', [LaporanMasalahController::class, 'storeTeruskan'])->name('laporan_masalah.store_teruskan');
+});
+
+// Admin only - handle laporan
+Route::middleware('auth')->group(function () {
+    Route::get('laporan_masalah/{id}/handle', [LaporanMasalahController::class, 'handle'])->name('laporan_masalah.handle');
+    Route::post('laporan_masalah/{id}/handle', [LaporanMasalahController::class, 'storeHandle'])->name('laporan_masalah.store_handle');
+});
+
 Route::get('/', function () {
     // Jika user sudah login
     if (auth()->check()) {
@@ -138,6 +174,29 @@ Route::get('/', function () {
 Route::get('/contact-us', function () {
     return view('contact');
 });
+
+// API endpoint untuk get available absen per kelas (untuk form registrasi)
+Route::get('/api/available-absen/{kelas_id}', function($kelas_id) {
+    try {
+        $kelas = \App\Models\Kelas::findOrFail($kelas_id);
+        $usedAbsen = \App\Models\User::where('kelas_id', $kelas_id)
+                                     ->whereNotNull('absen')
+                                     ->pluck('absen')
+                                     ->toArray();
+        $availableAbsen = array_diff(range(1, 40), $usedAbsen);
+        return response()->json([
+            'success' => true,
+            'kelas_id' => $kelas_id,
+            'available_absen' => array_values($availableAbsen)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 400);
+    }
+});
+
 Route::get('/verify-email', [AuthController::class, 'showVerifyForm'])->name('verify.form');
 
 Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send.otp');

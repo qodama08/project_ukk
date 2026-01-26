@@ -62,10 +62,5 @@
         </tbody>
       </table>
     </div>
-    @if($siswa->hasPages())
-      <div class="mt-2">
-        {{ $siswa->links() }}
-      </div>
-    @endif
 </div>
 @endsection

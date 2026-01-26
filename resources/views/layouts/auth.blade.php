@@ -36,6 +36,18 @@
 
         <!-- reCAPTCHA -->
         {!! NoCaptcha::renderJs() !!}
+        
+        <style>
+            .g-recaptcha {
+                display: flex !important;
+                justify-content: center;
+                margin: 10px 0;
+            }
+            
+            iframe[src*="recaptcha"] {
+                display: block !important;
+            }
+        </style>
 
     </head>
     <!-- [Head] end -->

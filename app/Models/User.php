@@ -117,4 +117,36 @@ public function notifikasi()
 {
 return $this->hasMany(Notifikasi::class, 'user_id');
 }
+
+// Attendance relationships
+public function attendanceAsGuru()
+{
+return $this->hasMany(Attendance::class, 'guru_id');
+}
+
+public function attendanceAsSiswa()
+{
+return $this->hasMany(Attendance::class, 'siswa_id');
+}
+
+// Laporan Masalah relationships
+public function laporanMasalahAsGuruMapel()
+{
+return $this->hasMany(LaporanMasalah::class, 'guru_mapel_id');
+}
+
+public function laporanMasalahAsGuruWaliKelas()
+{
+return $this->hasMany(LaporanMasalah::class, 'guru_wali_kelas_id');
+}
+
+public function laporanMasalahAsAdmin()
+{
+return $this->hasMany(LaporanMasalah::class, 'admin_id');
+}
+
+public function laporanMasalahAsSiswa()
+{
+return $this->hasMany(LaporanMasalah::class, 'siswa_id');
+}
 }

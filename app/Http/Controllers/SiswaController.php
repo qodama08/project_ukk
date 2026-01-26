@@ -14,12 +14,14 @@ class SiswaController extends Controller
 public function index()
 {
 
-	// Only show real siswa (users with 'user' role - admin/system users have different roles)
+	// Only show real siswa (users with 'user' role AND assigned to a class)
 	$siswa = User::with(['kelas','jurusan'])
 		->whereHas('roles', function($q) {
 			$q->where('nama_role', 'user');
 		})
-		->paginate(15);
+		->whereNotNull('kelas_id') // Only students assigned to a class
+		->orderBy('name')
+		->get();
 	return view('user.siswa.index', compact('siswa'));
 }
 

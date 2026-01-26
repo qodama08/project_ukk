@@ -29,7 +29,7 @@ class PrestasiController extends Controller
         if (request()->wantsJson()) return response()->json(['message' => 'Use POST /prestasi to create']);
         $siswa = User::with('kelas')->whereHas('roles', function($q) {
             $q->where('nama_role', 'user');
-        })->orderBy('name')->get();
+        })->whereNotNull('kelas_id')->orderBy('name')->get();
         return view('prestasi.form', ['siswa' => $siswa]);
     }
 

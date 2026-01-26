@@ -31,7 +31,7 @@ class PelanggaranController extends Controller
         if (request()->wantsJson()) {
             return response()->json(['message' => 'Use POST to /pelanggaran to create']);
         }
-        $siswa = User::with('kelas')->whereHas('roles', function($q){ $q->where('nama_role','user'); })->orderBy('name')->get();
+        $siswa = User::with('kelas')->whereHas('roles', function($q){ $q->where('nama_role','user'); })->whereNotNull('kelas_id')->orderBy('name')->get();
         
         // Get total points for each siswa
         $siswaWithPoints = $siswa->map(function($s) {

@@ -74,6 +74,12 @@
                     <li class="sidebar-item sidebar-large">
                         <a href="{{ route('catatan_konseling.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-notebook"></i> <span class="ms-2">Catatan Konseling</span></a>
                     </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('attendance.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-check"></i> <span class="ms-2">Kehadiran</span></a>
+                    </li>
+                    <li class="sidebar-item sidebar-large">
+                        <a href="{{ route('laporan_masalah.index') }}" class="sidebar-link sidebar-link-large"><i class="ti ti-report"></i> <span class="ms-2">Laporan Masalah</span></a>
+                    </li>
                 </ul>
                 <style>
                     .sidebar-large {
